@@ -38,6 +38,18 @@ def sanitize_text(text: str) -> str:
     normalized = re.sub(r'\s+', ' ', escaped).strip()
     return normalized
 
+def client_key(request, scope: str) -> str:
+    """Builds a per-client rate-limit key so one user's activity never throttles another's.
+
+    Uses the last X-Forwarded-For entry (the address our own proxy saw, so a client
+    can't spoof it by sending its own header), falling back to the socket address.
+    """
+    forwarded = request.headers.get("x-forwarded-for", "")
+    ip = forwarded.split(",")[-1].strip() if forwarded else ""
+    if not ip and request.client:
+        ip = request.client.host
+    return f"{scope}:{ip or 'unknown'}"
+
 class RateLimiter:
     """In-memory rate limiter for sensitive actions like cab bookings, money confirmations, and submissions."""
     def __init__(self, max_requests: int = 10, window_seconds: int = 60):
@@ -56,6 +68,9 @@ class RateLimiter:
             return False, max(1, retry_after)
         valid_timestamps.append(now)
         self.history[client_id] = valid_timestamps
+        # Drop clients whose windows have fully expired so the dict can't grow without bound.
+        if len(self.history) > 1000:
+            self.history = {k: v for k, v in self.history.items() if v and now - v[-1] < self.window_seconds}
         return True, 0
 
 # Global rate limiters

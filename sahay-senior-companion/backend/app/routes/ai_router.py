@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from ..services.gemini_service import gemini_service
 from ..services.data_store import data_store
@@ -8,11 +8,11 @@ from ..utils.security import sanitize_text
 router = APIRouter(prefix="/ai", tags=["Conversational AI & Intent Routing"])
 
 class VoiceIntentRequest(BaseModel):
-    text: str
+    text: str = Field(..., max_length=2000)
     language: Optional[str] = "en"
 
 class PlainLanguageRequest(BaseModel):
-    text: str
+    text: str = Field(..., max_length=2000)
     target_audience: Optional[str] = "senior_citizen"
 
 @router.post("/intent")

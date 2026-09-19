@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from ..services.data_store import data_store
-from ..utils.security import booking_rate_limiter, sanitize_text
+from ..utils.security import booking_rate_limiter, sanitize_text, client_key
 
 router = APIRouter(prefix="/transport", tags=["Journey 2: Transportation & Errands"])
 
@@ -40,9 +40,9 @@ async def estimate_fare(req: BookRideRequest):
     }
 
 @router.post("/book-ride")
-async def book_ride(req: BookRideRequest):
+async def book_ride(req: BookRideRequest, request: Request):
     """Books a simulated ride with rate limiting, giant OTP, driver info, and optional family broadcast."""
-    allowed, retry = booking_rate_limiter.is_allowed("transport_book")
+    allowed, retry = booking_rate_limiter.is_allowed(client_key(request, "transport_book"))
     if not allowed:
         raise HTTPException(status_code=429, detail=f"Please wait {retry} seconds before booking another ride.")
 

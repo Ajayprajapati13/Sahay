@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from ..services.gemini_service import gemini_service
 from ..services.data_store import data_store
@@ -8,8 +8,8 @@ from ..utils.security import sanitize_text
 router = APIRouter(prefix="/scam", tags=["Scam & Trust Guardian Layer"])
 
 class ScamCheckRequest(BaseModel):
-    text: Optional[str] = ""
-    image_b64: Optional[str] = None
+    text: Optional[str] = Field("", max_length=5000)
+    image_b64: Optional[str] = Field(None, max_length=6_000_000)
     source: Optional[str] = "forwarded_message"
 
 @router.post("/check")

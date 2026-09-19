@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -18,14 +18,22 @@ app = FastAPI(
     description="A gentle, accessible, voice-first GenAI companion for senior citizens navigating bank visits, health, transport, and scam protection."
 )
 
-# CORS setup
+# CORS setup (the app uses no cookies, so credentials stay off alongside a wildcard origin)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    return response
 
 # API Routers
 app.include_router(ai_router, prefix=settings.api_prefix)
@@ -71,8 +79,13 @@ async def serve_index():
 
 @app.get("/{filename:path}")
 async def serve_public_files(filename: str):
-    file_path = os.path.join(PUBLIC_DIR, filename)
-    if os.path.exists(file_path) and os.path.isfile(file_path):
+    # Unknown API paths must 404 as JSON, not fall through to the HTML app shell.
+    if filename == "api" or filename.startswith("api/"):
+        raise HTTPException(status_code=404, detail="Not found")
+    # Resolve symlinks and ".." so requests can never escape the web directory.
+    root = os.path.realpath(PUBLIC_DIR)
+    file_path = os.path.realpath(os.path.join(root, filename))
+    if file_path.startswith(root + os.sep) and os.path.isfile(file_path):
         return FileResponse(file_path)
     index_path = os.path.join(PUBLIC_DIR, "index.html")
     if os.path.exists(index_path):

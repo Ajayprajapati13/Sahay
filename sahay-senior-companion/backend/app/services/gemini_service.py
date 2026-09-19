@@ -27,8 +27,7 @@ class GeminiService:
         if not self.api_key:
             return None
 
-        headers = {"Content-Type": "application/json"}
-        params = {"key": self.api_key}
+        headers = {"Content-Type": "application/json", "x-goog-api-key": self.api_key}
 
         parts = []
         if image_b64:
@@ -54,7 +53,7 @@ class GeminiService:
 
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post(self.base_url, headers=headers, params=params, json=payload)
+                resp = await client.post(self.base_url, headers=headers, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()
                     candidates = data.get("candidates", [])

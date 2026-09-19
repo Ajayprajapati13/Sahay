@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from ..services.gemini_service import gemini_service
 
 router = APIRouter(prefix="/ocr", tags=["Multimodal Document Understanding"])
 
 class DocumentAnalyzeRequest(BaseModel):
-    image_b64: Optional[str] = None
+    image_b64: Optional[str] = Field(None, max_length=6_000_000)
     doc_type: Optional[str] = "passbook"
     sample_id: Optional[str] = None
 

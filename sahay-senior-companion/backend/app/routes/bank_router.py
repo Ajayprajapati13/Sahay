@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from ..services.gemini_service import gemini_service
 from ..services.data_store import data_store
-from ..utils.security import mask_account_number, sanitize_text, submission_rate_limiter
+from ..utils.security import mask_account_number, sanitize_text, submission_rate_limiter, client_key
 
 router = APIRouter(prefix="/bank", tags=["Journey 1: Bank & Government Visit"])
 
@@ -133,9 +133,9 @@ async def kiosk_checkin(req: KioskCheckinRequest):
     }
 
 @router.post("/complete")
-async def complete_bank_action(req: BankCompleteRequest):
+async def complete_bank_action(req: BankCompleteRequest, request: Request):
     """Logs the completed or unresolved transaction to Bank Account Activity Tracker."""
-    allowed, retry = submission_rate_limiter.is_allowed("bank_complete")
+    allowed, retry = submission_rate_limiter.is_allowed(client_key(request, "bank_complete"))
     if not allowed:
         raise HTTPException(status_code=429, detail=f"Please wait {retry} seconds before logging again.")
 
