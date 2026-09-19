@@ -1,5 +1,7 @@
 import pytest
+
 from app.services.gemini_service import gemini_service
+
 
 @pytest.mark.asyncio
 async def test_bank_pension_intent():

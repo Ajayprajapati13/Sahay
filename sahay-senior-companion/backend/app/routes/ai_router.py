@@ -1,9 +1,10 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any
-from ..services.gemini_service import gemini_service
+
 from ..services.data_store import data_store
-from ..utils.security import sanitize_text
+from ..services.gemini_service import gemini_service
 
 router = APIRouter(prefix="/ai", tags=["Conversational AI & Intent Routing"])
 

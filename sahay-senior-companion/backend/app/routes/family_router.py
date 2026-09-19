@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+
 from ..services.data_store import data_store
 
 router = APIRouter(prefix="/family", tags=["Opt-In Family Visibility & Tracking"])

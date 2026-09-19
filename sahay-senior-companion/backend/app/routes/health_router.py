@@ -1,8 +1,8 @@
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+
 from ..services.data_store import data_store
-from ..services.gemini_service import gemini_service
 from ..utils.security import CleanModel
 
 router = APIRouter(prefix="/health", tags=["Journey 3: Health & Hospital"])

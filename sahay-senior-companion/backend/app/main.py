@@ -1,16 +1,19 @@
 import os
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
 from .config import settings
 from .routes.ai_router import router as ai_router
+from .routes.bank_router import router as bank_router
+from .routes.family_router import router as family_router
+from .routes.health_router import router as health_router
 from .routes.ocr_router import router as ocr_router
 from .routes.scam_router import router as scam_router
-from .routes.bank_router import router as bank_router
 from .routes.transport_router import router as transport_router
-from .routes.health_router import router as health_router
-from .routes.family_router import router as family_router
 
 app = FastAPI(
     title=settings.app_name,
@@ -27,13 +30,38 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Scripts and styles are served from this origin only; Google Maps is the one allowed frame.
+# (Inline handlers still need 'unsafe-inline' for scripts, but nothing can load or send data elsewhere.)
+CONTENT_SECURITY_POLICY = (
+    "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data: blob:; connect-src 'self'; frame-src https://www.google.com; worker-src 'self'; "
+    "manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+)
+DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")  # Swagger UI loads its assets from a CDN, so no CSP there
+STATIC_PREFIXES = ("/css/", "/js/", "/icons/")
+
 @app.middleware("http")
-async def add_security_headers(request: Request, call_next):
+async def add_security_and_cache_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers.setdefault("X-Content-Type-Options", "nosniff")
-    response.headers.setdefault("X-Frame-Options", "DENY")
-    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    path, headers = request.url.path, response.headers
+    headers.setdefault("X-Content-Type-Options", "nosniff")
+    headers.setdefault("X-Frame-Options", "DENY")
+    headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    headers.setdefault("Permissions-Policy", "camera=(self), microphone=(self), geolocation=(self), payment=(), usb=()")
+    if not path.startswith(DOCS_PATHS):
+        headers.setdefault("Content-Security-Policy", CONTENT_SECURITY_POLICY)
+    if path.startswith(STATIC_PREFIXES):
+        headers.setdefault("Cache-Control", "public, max-age=300, stale-while-revalidate=86400")
+    elif path == "/api/config":
+        headers.setdefault("Cache-Control", "public, max-age=300")
+    elif path.startswith("/api/"):
+        headers.setdefault("Cache-Control", "no-store")  # personal data: never cached
+    elif "cache-control" not in headers:
+        headers["Cache-Control"] = "no-cache"  # pages, manifest, service worker: always revalidate
     return response
+
+# Added last so it wraps everything and compresses the final response.
+app.add_middleware(GZipMiddleware, minimum_size=800)
 
 # API Routers
 app.include_router(ai_router, prefix=settings.api_prefix)

@@ -1,7 +1,8 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+
 from app.main import app
-from app.utils.security import RateLimiter, client_key
+from app.utils.security import RateLimiter, clean_deep, clean_text, client_key
 
 
 def _client():
@@ -83,7 +84,6 @@ def test_rate_limit_is_isolated_between_clients():
 
 # ---- stored-XSS defence: markup is stripped from anything the API stores in shared state
 
-from app.utils.security import clean_text, clean_deep
 
 
 def test_clean_text_strips_markup_but_keeps_punctuation():

@@ -1,9 +1,10 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
-from ..services.gemini_service import gemini_service
+
 from ..services.data_store import data_store
-from ..utils.security import mask_account_number, sanitize_text, submission_rate_limiter, client_key, CleanModel
+from ..services.gemini_service import gemini_service
+from ..utils.security import CleanModel, client_key, mask_account_number, submission_rate_limiter
 
 router = APIRouter(prefix="/bank", tags=["Journey 1: Bank & Government Visit"])
 

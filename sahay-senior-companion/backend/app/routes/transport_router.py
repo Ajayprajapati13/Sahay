@@ -1,8 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
+
 from ..services.data_store import data_store
-from ..utils.security import booking_rate_limiter, sanitize_text, client_key, CleanModel
+from ..utils.security import CleanModel, booking_rate_limiter, client_key
 
 router = APIRouter(prefix="/transport", tags=["Journey 2: Transportation & Errands"])
 
@@ -63,7 +64,7 @@ async def book_ride(req: BookRideRequest, request: Request):
 
     family_text = ""
     if should_share:
-        family_text = f"Driver Ramesh Kumar's details and live vehicle tracking (KA-04-E-8821) have been sent to your daughter Ananya."
+        family_text = "Driver Ramesh Kumar's details and live vehicle tracking (KA-04-E-8821) have been sent to your daughter Ananya."
 
     trip = data_store.add_trip({
         "destination": dest,

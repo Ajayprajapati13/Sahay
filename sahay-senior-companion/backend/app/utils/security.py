@@ -1,8 +1,10 @@
-import re
 import html
+import re
 import time
 from typing import Dict, Tuple
+
 from pydantic import BaseModel, field_validator
+
 
 def mask_account_number(acc: str, prefix: str = "") -> str:
     """Masks financial account numbers showing only the last 4 digits."""

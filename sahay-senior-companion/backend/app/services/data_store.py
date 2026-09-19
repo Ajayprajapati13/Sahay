@@ -1,14 +1,21 @@
 import json
+import logging
 import os
 import time
-from typing import Dict, List, Any, Optional
+import uuid
+from typing import Any, Dict, List
+
 from ..config import settings
-from ..utils.security import mask_account_number, sanitize_text
+from ..utils.security import mask_account_number
+
+logger = logging.getLogger("sahay.store")
 
 STATE_FILE = os.path.join(settings.data_dir, "sahay_state.json")
+MAX_ITEMS = 100  # per collection: keeps memory and the state file bounded even if the API is hammered
 
 class DataStore:
     def __init__(self):
+        self._persist = True
         self._load_or_initialize()
 
     def _default_state(self) -> Dict[str, Any]:
@@ -141,17 +148,33 @@ class DataStore:
                 with open(STATE_FILE, "r", encoding="utf-8") as f:
                     self.state = json.load(f)
                     return
-            except Exception:
-                pass
+            except (OSError, ValueError):
+                logger.warning("State file unreadable; starting from a fresh state")
         self.state = self._default_state()
         self._save()
 
     def _save(self):
+        """Writes the state atomically. On a read-only filesystem (serverless) it stops trying and stays in memory."""
+        if not self._persist:
+            return
         try:
-            with open(STATE_FILE, "w", encoding="utf-8") as f:
-                json.dump(self.state, f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+            tmp_path = STATE_FILE + ".tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(self.state, f, ensure_ascii=False, separators=(",", ":"))
+            os.replace(tmp_path, STATE_FILE)
+        except OSError as e:
+            self._persist = False
+            logger.warning(f"State cannot be saved ({e}); continuing in memory only")
+
+    def _prepend(self, key: str, item: Dict[str, Any]) -> None:
+        items = self.state.setdefault(key, [])
+        items.insert(0, item)
+        del items[MAX_ITEMS:]
+        self._save()
+
+    @staticmethod
+    def _new_id(prefix: str) -> str:
+        return f"{prefix}-{uuid.uuid4().hex[:10]}"  # unique even for items created in the same second
 
     # Profile & Permissions
     def get_profile(self) -> Dict[str, Any]:
@@ -177,11 +200,10 @@ class DataStore:
     # Bank Activities
     def add_bank_activity(self, activity: Dict[str, Any]) -> Dict[str, Any]:
         if "account_masked" in activity:
-            activity["account_masked"] = mask_account_number(activity["account_masked"], prefix="SBI")
-        activity["id"] = f"act-bank-{int(time.time())}"
+            activity["account_masked"] = mask_account_number(activity["account_masked"])
+        activity["id"] = self._new_id("act-bank")
         activity["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-        self.state["bank_activities"].insert(0, activity)
-        self._save()
+        self._prepend("bank_activities", activity)
         return activity
 
     def get_bank_activities(self) -> List[Dict[str, Any]]:
@@ -189,11 +211,10 @@ class DataStore:
 
     # Reminders
     def add_reminder(self, reminder: Dict[str, Any]) -> Dict[str, Any]:
-        reminder["id"] = f"rem-{int(time.time())}"
+        reminder["id"] = self._new_id("rem")
         if "status" not in reminder:
             reminder["status"] = "pending"
-        self.state["reminders"].insert(0, reminder)
-        self._save()
+        self._prepend("reminders", reminder)
         return reminder
 
     def get_reminders(self) -> List[Dict[str, Any]]:
@@ -209,10 +230,9 @@ class DataStore:
 
     # Trips
     def add_trip(self, trip: Dict[str, Any]) -> Dict[str, Any]:
-        trip["id"] = f"trip-{int(time.time())}"
+        trip["id"] = self._new_id("trip")
         trip["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-        self.state["trips"].insert(0, trip)
-        self._save()
+        self._prepend("trips", trip)
         return trip
 
     def get_trips(self) -> List[Dict[str, Any]]:
@@ -220,9 +240,8 @@ class DataStore:
 
     # Health Visits
     def add_health_visit(self, visit: Dict[str, Any]) -> Dict[str, Any]:
-        visit["id"] = f"health-{int(time.time())}"
-        self.state["health_visits"].insert(0, visit)
-        self._save()
+        visit["id"] = self._new_id("health")
+        self._prepend("health_visits", visit)
         return visit
 
     def get_health_visits(self) -> List[Dict[str, Any]]:
@@ -230,10 +249,9 @@ class DataStore:
 
     # Scam Inspections
     def add_scam_inspection(self, inspection: Dict[str, Any]) -> Dict[str, Any]:
-        inspection["id"] = f"scam-{int(time.time())}"
+        inspection["id"] = self._new_id("scam")
         inspection["timestamp"] = time.strftime("%Y-%m-%dT%H:%M:%S")
-        self.state["scam_inspections"].insert(0, inspection)
-        self._save()
+        self._prepend("scam_inspections", inspection)
         return inspection
 
     def get_scam_inspections(self) -> List[Dict[str, Any]]:

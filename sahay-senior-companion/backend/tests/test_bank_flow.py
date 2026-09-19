@@ -1,7 +1,8 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+
 from app.main import app
-from app.services.data_store import data_store
+
 
 @pytest.mark.asyncio
 async def test_bank_flagship_flow_prepare():

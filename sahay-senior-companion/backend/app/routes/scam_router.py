@@ -1,8 +1,10 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional
-from ..services.gemini_service import gemini_service
+
 from ..services.data_store import data_store
+from ..services.gemini_service import gemini_service
 from ..utils.security import clean_text
 
 router = APIRouter(prefix="/scam", tags=["Scam & Trust Guardian Layer"])

@@ -1,7 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Optional
-from ..services.gemini_service import gemini_service, DocumentReadError
+
+from ..services.gemini_service import DocumentReadError, gemini_service
 
 router = APIRouter(prefix="/ocr", tags=["Multimodal Document Understanding"])
 

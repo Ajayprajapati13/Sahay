@@ -2,12 +2,18 @@ import base64
 import json
 
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from app.main import app
 from app.services import gemini_service as gs
 from app.services.gemini_service import (
-    gemini_service, parse_json_object, split_image, normalize_intent, normalize_scam, normalize_document, _mask_account,
+    _mask_account,
+    gemini_service,
+    normalize_document,
+    normalize_intent,
+    normalize_scam,
+    parse_json_object,
+    split_image,
 )
 
 PNG_B64 = base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 40).decode()
@@ -113,6 +119,7 @@ def _fake_http(monkeypatch, responses):
         return None
 
     monkeypatch.setattr(gs.httpx, "AsyncClient", FakeClient)
+    monkeypatch.setattr(gemini_service, "_client", None)
     monkeypatch.setattr(gs.asyncio, "sleep", no_sleep)
     return seen
 
@@ -326,6 +333,6 @@ async def test_scam_result_says_who_checked_it(live):
     async with _client() as client:
         by_model = (await client.post("/api/scam/check", json={"text": "Your account was credited with Rs 500."})).json()["result"]
         live.replies.append(None)  # model busy or rate-limited
-        by_rules = (await client.post("/api/scam/check", json={"text": "Your account was credited with Rs 500."})).json()["result"]
+        by_rules = (await client.post("/api/scam/check", json={"text": "Your gas cylinder is booked for Friday."})).json()["result"]
     assert by_model["checked_by"] == "gemini"
     assert by_rules["checked_by"] == "rules" and by_rules["threat_level"] == "UNVERIFIED"
