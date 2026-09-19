@@ -38,7 +38,7 @@ app.include_router(family_router, prefix=settings.api_prefix)
 
 # Frontend directories
 FRONTEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend"))
-PUBLIC_DIR = os.path.join(FRONTEND_DIR, "public")
+PUBLIC_DIR = os.path.join(FRONTEND_DIR, "web")  # not "public": Vercel excludes public/ from the function bundle
 
 if os.path.exists(FRONTEND_DIR):
     app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
