@@ -43,8 +43,8 @@ PUBLIC_DIR = os.path.join(FRONTEND_DIR, "public")
 if os.path.exists(FRONTEND_DIR):
     app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
     app.mount("/js", StaticFiles(directory=os.path.join(FRONTEND_DIR, "js")), name="js")
-    if os.path.exists(os.path.join(FRONTEND_DIR, "icons")):
-        app.mount("/icons", StaticFiles(directory=os.path.join(FRONTEND_DIR, "icons")), name="icons")
+    if os.path.exists(os.path.join(PUBLIC_DIR, "icons")):
+        app.mount("/icons", StaticFiles(directory=os.path.join(PUBLIC_DIR, "icons")), name="icons")
 
 @app.get("/api/health-check")
 async def health_check():
