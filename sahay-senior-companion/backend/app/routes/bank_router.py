@@ -40,7 +40,7 @@ class DraftLetterRequest(CleanModel):
 @router.post("/prepare")
 async def prepare_bank_visit(req: BankPrepareRequest):
     """Prepares personalized document checklist, pre-filled slips, and landmark navigation."""
-    masked_acc = mask_account_number(req.account_number, prefix="SBI")
+    masked_acc = mask_account_number(req.account_number)
     purpose_key = req.purpose.lower()
 
     # Dynamic document checklists per purpose
@@ -99,20 +99,12 @@ async def prepare_bank_visit(req: BankPrepareRequest):
         }
         spoken = f"I have prepared your cash withdrawal slip for ₹{req.amount}. Remember to carry your original passbook."
 
-    route_info = {
-        "landmark_directions": "From your home, take Margosa Road past the Post Office (200 meters). The SBI Branch is directly opposite the heritage Banyan tree and flower market. An elevator is available right at the entrance.",
-        "distance": "2.4 km",
-        "estimated_cab_time": "10-12 mins",
-        "estimated_cab_fare": "₹140 - ₹155"
-    }
-
     return {
         "status": "success",
         "purpose": req.purpose,
         "masked_account": masked_acc,
         "checklist": checklist,
         "prefilled_form": prefilled_form,
-        "route_info": route_info,
         "spoken_response": spoken
     }
 

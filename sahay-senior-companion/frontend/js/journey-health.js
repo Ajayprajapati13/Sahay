@@ -5,6 +5,7 @@ class HealthJourney {
     this.prescriptionData = null;
     this.reminders = [];
     this.visits = [];
+    this.scan = { status: "idle" };
   }
 
   async init() {
@@ -37,11 +38,130 @@ class HealthJourney {
     }
   }
 
-  async loadSamplePrescription() {
+  async scanPrescription() {
     voiceEngine.playChime("start");
-    this.prescriptionData = sampleData.prescription;
+    let photo;
+    try {
+      photo = await pickPhoto();
+    } catch (e) {
+      this.scan = { status: "error", error: e.message };
+      this.render();
+      return;
+    }
+    if (!photo) return; // cancelled
+    this.scan = { status: "reading", preview: photo };
     this.render();
-    voiceEngine.speak("I have scanned your Apollo Cardiology prescription. Dr. Sharma prescribed Telmisartan for your blood pressure and Atorvastatin. I have set your daily pill alarms.");
+
+    const result = await readDocumentPhoto("prescription", photo);
+    if (!result.ok) {
+      this.scan = { status: "error", error: result.error };
+      this.render();
+      return;
+    }
+    const d = result.data;
+    this.scan = {
+      status: "review",
+      preview: photo,
+      doctor: d.doctor_name || "",
+      clinic: d.hospital_clinic || d.clinic || "",
+      date: d.visit_date || "",
+      next_visit: d.next_appointment || "",
+      summary: d.plain_summary || "",
+      medicines: (d.medicines || []).map((m) => ({
+        name: m.name || "",
+        dosage: m.dosage || "",
+        when: m.when || "",
+        purpose: m.purpose || ""
+      }))
+    };
+    this.render();
+    voiceEngine.speak("I have read your prescription. Please check every medicine carefully, and tap yes if they are correct.");
+  }
+
+  async confirmPrescription() {
+    const s = this.scan;
+    const val = (id) => (document.getElementById(id) ? document.getElementById(id).value.trim() : "");
+    const medicines = [];
+    s.medicines.forEach((m, i) => {
+      const include = document.getElementById(`rx-inc-${i}`);
+      if (include && include.checked && val(`rx-name-${i}`)) {
+        medicines.push({ name: val(`rx-name-${i}`), dosage: val(`rx-dose-${i}`), when: val(`rx-when-${i}`), purpose: m.purpose });
+      }
+    });
+    if (medicines.length === 0) {
+      alert("Please tick at least one medicine.");
+      return;
+    }
+    const doctor = val("rx-doctor");
+    const clinic = val("rx-clinic");
+    try {
+      const res = await fetch("/api/health/log-visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doctor,
+          clinic,
+          date: s.date,
+          plain_summary: s.summary || "Prescription added from a photo.",
+          next_visit: s.next_visit,
+          medicines
+        })
+      });
+      if (!res.ok) throw new Error("save failed");
+    } catch (e) {
+      this.scan = { ...s, error: "I could not save this. Please try again." };
+      this.render();
+      return;
+    }
+    this.prescriptionData = { doctor_name: doctor, clinic, date: s.date, medicines, svg_preview: s.preview };
+    this.scan = { status: "idle" };
+    await this.fetchReminders();
+    await this.fetchVisits();
+    this.render();
+    if (window.refreshDashboard) window.refreshDashboard();
+    voiceEngine.speak("Your medicines are saved.");
+  }
+
+  renderScan() {
+    const s = this.scan || { status: "idle" };
+    if (s.status === "reading") {
+      return `<div role="status" style="font-size: 1.25rem; font-weight: 700; padding: 20px;">🔎 Reading your prescription… please wait a few seconds.</div>`;
+    }
+    if (s.status === "review") {
+      const input = (id, label, value, extra = "") => `
+        <label style="display: block; text-align: left; font-size: 1.05rem; font-weight: 700; margin-top: 10px;">${label}
+          <input id="${id}" type="text" value="${esc(value)}" ${extra}
+                 style="display: block; width: 100%; min-height: 48px; font-size: 1.15rem; padding: 8px 12px; margin-top: 4px; border: 2px solid var(--border-card); border-radius: 12px;" />
+        </label>`;
+      const meds = s.medicines.map((m, i) => `
+        <div style="border: 2px solid var(--border-card); border-radius: 14px; padding: 12px 14px; margin-top: 14px; text-align: left;">
+          <label style="font-size: 1.1rem; font-weight: 800;"><input id="rx-inc-${i}" type="checkbox" checked style="width: 22px; height: 22px; margin-right: 8px;" /> Include this medicine</label>
+          ${input(`rx-name-${i}`, "Medicine", m.name)}
+          ${input(`rx-dose-${i}`, "How much", m.dosage)}
+          ${input(`rx-when-${i}`, "When to take it", m.when)}
+        </div>`).join("");
+      const error = s.error ? `<p role="alert" style="font-size: 1.1rem; color: #B91C1C; font-weight: 700;">${esc(s.error)}</p>` : "";
+      return `
+        <img src="${esc(safeImgSrc(s.preview))}" alt="Your prescription photo" style="max-width: 100%; max-height: 260px; border-radius: 12px; box-shadow: var(--shadow-card);" />
+        <p style="font-size: 1.15rem; font-weight: 700; margin: 14px 0 4px;">Please check every medicine and dose against your paper prescription. Fix anything that is wrong. If you are not sure, ask your doctor or pharmacist.</p>
+        ${input("rx-doctor", "Doctor", s.doctor)}
+        ${input("rx-clinic", "Clinic or hospital", s.clinic)}
+        ${meds}
+        ${error}
+        <div class="btn-grid-row" style="margin-top: 18px;">
+          <button class="btn-primary" style="background: #0D9488;" onclick="healthJourney.confirmPrescription()"><span>✅</span> Yes, these are correct. Set my reminders</button>
+          <button class="btn-secondary" onclick="healthJourney.scanPrescription()"><span>📷</span> Take the photo again</button>
+        </div>`;
+    }
+    const error = s.status === "error"
+      ? `<p role="alert" style="font-size: 1.15rem; color: #B91C1C; font-weight: 700; margin-bottom: 14px;">${esc(s.error)}</p>`
+      : "";
+    return `
+      ${error}
+      <div class="btn-grid-row">
+        <button class="btn-primary" style="background: #0D9488;" onclick="healthJourney.scanPrescription()"><span>📷</span> Take a Photo of My Prescription</button>
+      </div>
+      <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 12px;">${esc(PHOTO_PRIVACY_NOTE)}</p>`;
   }
 
   async markTaken(reminderId) {
@@ -62,28 +182,6 @@ class HealthJourney {
     }
   }
 
-  showHospitalGuidance() {
-    voiceEngine.playChime("start");
-    const modal = document.createElement("div");
-    modal.className = "confirmation-modal-backdrop";
-    modal.innerHTML = `
-      <div class="confirmation-card" style="text-align: left;">
-        <h3 style="color: #0D9488; margin-bottom: 12px;">🏥 In-Hospital Guidance: Apollo Clinic</h3>
-        <ul class="plain-checklist">
-          <li><span>🚪</span> <strong>Entrance:</strong> Main door on Sampige Road. Wheelchair ramp on the left.</li>
-          <li><span>🎟️</span> <strong>Registration:</strong> Hand referral slip to Counter 1 for Token #14.</li>
-          <li><span>🛗</span> <strong>Doctor's Room:</strong> Room 104 (First Floor - elevator next to pharmacy).</li>
-          <li><span>🪑</span> <strong>Resting Area:</strong> Soft cushioned sofas right outside Room 104.</li>
-        </ul>
-        <button id="close-hosp-btn" class="btn-primary" style="background: #0D9488;">
-          <span>👍</span> Got It, Thank You
-        </button>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    modal.querySelector("#close-hosp-btn").onclick = () => modal.remove();
-  }
-
   render() {
     const container = document.getElementById("health-journey-container");
     if (!container) return;
@@ -99,12 +197,12 @@ class HealthJourney {
         <div style="background: var(--bg-card-hover); border: 2px dashed var(--border-card); border-radius: var(--radius-card); padding: 24px; text-align: center; margin-bottom: 24px;">
           <h4 style="font-size: 1.3rem; margin-bottom: 8px;">Photograph Your Doctor's Prescription</h4>
           <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 16px;">
-            AI will identify the medicines, dosage times, and create spoken daily alarms.
+            AI will read the medicines and timings from a photo. You check every one before reminders are set.
           </p>
 
           ${this.prescriptionData ? `
             <div style="margin: 16px 0;">
-              <img src="${esc(safeImgSrc(this.prescriptionData.svg_preview))}" alt="Apollo Prescription" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
+              <img src="${esc(safeImgSrc(this.prescriptionData.svg_preview))}" alt="Your prescription photo" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
               <div class="verified-safe-box" style="margin-top: 14px;">
                 <span>🩺</span>
                 <div>
@@ -129,18 +227,9 @@ class HealthJourney {
                 `).join('')}
               </ul>
 
-              <div class="btn-grid-row">
-                <button class="btn-secondary" style="border-color: #0D9488; color: #0D9488;" onclick="healthJourney.showHospitalGuidance()">
-                  <span>🏥</span> View In-Hospital Guidance (Room 104)
-                </button>
-              </div>
             </div>
           ` : `
-            <div class="btn-grid-row">
-              <button class="btn-primary" style="background: #0D9488;" onclick="healthJourney.loadSamplePrescription()">
-                <span>📷</span> Scan Verified Doctor Prescription
-              </button>
-            </div>
+            ${this.renderScan()}
           `}
         </div>
 

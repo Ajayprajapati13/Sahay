@@ -76,7 +76,7 @@ def test_normalize_scam_requires_a_real_boolean_verdict():
 def test_account_numbers_are_always_masked_to_last_four():
     assert _mask_account("SBI 12345678904821") == "SBI •••• 4821"
     assert _mask_account("50100123456789") == "•••• 6789"
-    assert _mask_account("") == "•••• 0000"
+    assert _mask_account("") == "" and _mask_account(None) == ""  # unknown stays blank, never a made-up number
     doc = normalize_document({"bank_name": "SBI<script>", "account_number_masked": "1234567890"}, "bank_name")
     assert doc["bank_name"] == "SBIscript" or "<" not in doc["bank_name"]
     assert doc["account_number_masked"] == "•••• 7890"
@@ -250,8 +250,82 @@ async def test_prescription_needs_real_medicines_and_drops_empty_ones(live):
     assert [m["name"] for m in meds] == ["Metformin 500"]
 
 
+
+# ---- no demo documents, real model default, Maps config, honest reminders
+
 @pytest.mark.asyncio
-async def test_demo_sample_only_when_no_photo_is_supplied():
+async def test_no_photo_is_a_422_not_a_demo_document():
     async with _client() as client:
-        res = await client.post("/api/ocr/passbook", json={})
-    assert res.status_code == 200 and res.json()["data"]["bank_name"]
+        assert (await client.post("/api/ocr/passbook", json={})).status_code == 422
+        assert (await client.post("/api/ocr/prescription", json={})).status_code == 422
+
+
+def test_default_model_is_a_current_one_and_thinking_is_off_for_flash_models(monkeypatch):
+    from app.config import Settings
+    assert Settings().gemini_model == "gemini-3.6-flash"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("model", ["gemini-2.5-flash", "gemini-3.6-flash"])
+async def test_thinking_disabled_for_flash_models(monkeypatch, model):
+    monkeypatch.setattr(gemini_service, "api_key", "k")
+    monkeypatch.setattr(gemini_service, "model", model)
+    seen = _fake_http(monkeypatch, [_OK])
+    await gemini_service._call_gemini_api("hi", json_mode=True)
+    assert seen[0]["json"]["generationConfig"]["thinkingConfig"] == {"thinkingBudget": 0}
+
+
+@pytest.mark.asyncio
+async def test_public_config_exposes_only_the_maps_key_and_gemini_flag(monkeypatch):
+    from app.config import settings
+    monkeypatch.setattr(settings, "google_maps_api_key", "maps-key-123")
+    monkeypatch.setattr(settings, "gemini_api_key", "super-secret-gemini-key")
+    async with _client() as client:
+        body = (await client.get("/api/config")).json()
+    assert body == {"maps_embed_key": "maps-key-123", "gemini_live": True}
+    assert "super-secret" not in str(body)
+
+
+@pytest.mark.asyncio
+async def test_reminders_never_invent_a_dose_or_time():
+    async with _client() as client:
+        res = await client.post("/api/health/log-visit", json={
+            "doctor": "Dr Rao", "clinic": "", "plain_summary": "x",
+            "medicines": [{"name": "Metformin 500"}, {"name": "Aspirin", "dosage": "75 mg", "when": "morning", "purpose": ""}]})
+        assert res.status_code == 200
+        reminders = (await client.get("/api/health/reminders")).json()["reminders"]
+    by_title = {r["title"]: r for r in reminders}
+    assert by_title["Take Metformin 500"]["detail"] == "Check your prescription"
+    assert by_title["Take Metformin 500"]["due_time"] == "Time not set"
+    assert by_title["Take Aspirin"]["detail"] == "75 mg - morning"
+    assert "1 tablet" not in str(reminders[-2:])
+
+
+@pytest.mark.asyncio
+async def test_invented_hospital_guidance_endpoint_is_gone():
+    async with _client() as client:
+        res = await client.get("/api/health/hospital-guidance/apollo")
+    assert res.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_bank_prepare_has_no_invented_route_and_no_bank_prefix_for_other_banks():
+    async with _client() as client:
+        res = await client.post("/api/bank/prepare", json={
+            "purpose": "withdraw_cash", "bank_name": "Punjab National Bank", "branch_name": "Karol Bagh",
+            "account_number": "9876", "customer_name": "Test User"})
+    data = res.json()
+    assert "route_info" not in data
+    assert data["prefilled_form"]["fields"]["Account Number"] == "•••• 9876"
+    assert data["prefilled_form"]["fields"]["Branch"] == "Karol Bagh"
+
+
+@pytest.mark.asyncio
+async def test_scam_result_says_who_checked_it(live):
+    live.replies.append('{"is_scam": false, "threat_level": "SAFE", "plain_headline": "Normal bank alert", "reasons": ["Only information"], "safe_action": "Nothing to do", "spoken_warning": "Fine"}')
+    async with _client() as client:
+        by_model = (await client.post("/api/scam/check", json={"text": "Your account was credited with Rs 500."})).json()["result"]
+        live.replies.append(None)  # model busy or rate-limited
+        by_rules = (await client.post("/api/scam/check", json={"text": "Your account was credited with Rs 500."})).json()["result"]
+    assert by_model["checked_by"] == "gemini"
+    assert by_rules["checked_by"] == "rules" and by_rules["threat_level"] == "UNVERIFIED"

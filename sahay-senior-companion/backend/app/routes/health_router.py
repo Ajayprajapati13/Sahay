@@ -40,11 +40,16 @@ async def log_health_visit(req: HealthVisitLogRequest):
 
     # Schedule pill reminders automatically
     for med in req.medicines:
+        # Only what was on the prescription: never invent a dose or a time.
+        dose, when, purpose = med.get("dosage"), med.get("when"), med.get("purpose")
+        detail = " - ".join(part for part in (dose, when) if part) or "Check your prescription"
+        if purpose:
+            detail += f" ({purpose})"
         data_store.add_reminder({
             "category": "health",
-            "title": f"Take {med.get('name', 'Pill')}",
-            "detail": f"{med.get('dosage', '1 tablet')} - {med.get('when', 'After meal')} ({med.get('purpose', 'General health')})",
-            "due_time": med.get("when", "Daily"),
+            "title": f"Take {med.get('name') or 'medicine'}",
+            "detail": detail,
+            "due_time": when or "Time not set",
             "status": "pending",
             "audio_alert": True
         })
@@ -53,18 +58,6 @@ async def log_health_visit(req: HealthVisitLogRequest):
         "status": "success",
         "visit": visit,
         "spoken_summary": f"Your consultation with {req.doctor} is saved. I have created your daily medicine schedule and gentle alarms."
-    }
-
-@router.get("/hospital-guidance/{clinic_id}")
-async def get_hospital_guidance(clinic_id: str):
-    """In-hospital counter and token navigation in simple senior-friendly terms."""
-    return {
-        "clinic_name": "Apollo Clinic & Heart Center, Malleshwaram",
-        "entry_guidance": "Enter via the main entrance on Sampige Road. A wheelchair ramp is on the left.",
-        "reception_counter": "Counter 1 (Registration)",
-        "doctor_room": "Room 104 (First Floor - Take the elevator right next to the pharmacy)",
-        "token_instructions": "Hand your referral slip to Sister Mary at Counter 1. She will give you Token #14 for Dr. Sharma.",
-        "amenities": "Clean drinking water and resting sofas are located directly outside Room 104."
     }
 
 @router.get("/reminders")

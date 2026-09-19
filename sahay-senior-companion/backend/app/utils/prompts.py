@@ -40,50 +40,45 @@ JSON format:
 """
 
 PASSBOOK_OCR_PROMPT = """
-You are analyzing a photograph of an Indian bank passbook or account statement for an elderly customer.
-Extract key details, mask sensitive information, verify the document is safe (not a scam notice), and explain what documents the senior needs to bring for their intended visit.
+You are reading a photograph of an Indian bank passbook or account statement.
+Extract ONLY text that is clearly visible in the photo. If a field is not visible or not readable, use null. Never guess, infer or invent a value.
+If the image is not a bank passbook or statement, reply with exactly {"error": "not a passbook"}.
+Show the account number masked, with only its last 4 digits.
 
 JSON Format:
 {
-  "bank_name": "State Bank of India / Punjab National Bank / etc.",
-  "branch_name": "Specific branch and city",
-  "branch_address": "Simple landmark-friendly address",
-  "account_number_masked": "•••• 4821 (only last 4 digits visible)",
-  "ifsc_code": "SBIN0001234",
-  "customer_name": "Senior citizen name",
-  "account_type": "Savings / Pension Account",
-  "is_authentic_document": true,
-  "plain_summary": "Plain English description of what was read from the passbook.",
-  "documents_to_carry": [
-    "Original Passbook",
-    "Aadhaar Card photocopy",
-    "Cheque leaf / withdrawal slip"
-  ]
+  "bank_name": "Bank name as printed",
+  "branch_name": "Branch as printed, or null",
+  "branch_address": "Address as printed, or null",
+  "account_number_masked": "•••• 4821 (only the last 4 digits), or null",
+  "ifsc_code": "IFSC as printed, or null",
+  "customer_name": "Account holder name as printed, or null",
+  "account_type": "Account type as printed, or null"
 }
 """
 
 PRESCRIPTION_OCR_PROMPT = """
-You are analyzing a photograph of a medical prescription or doctor referral slip for an elderly patient.
-Extract the doctor's name, clinic/hospital, and the list of medications with simple morning/afternoon/night schedules in plain language.
+You are reading a photograph of a medical prescription.
+Extract ONLY what is written in the photo: the doctor, the clinic, and each medicine with its dosage and timing exactly as written.
+If something is not written or not readable, use null. Never guess, infer or add a medicine, a dose, a timing or a purpose that is not written.
+If the image is not a prescription, reply with exactly {"error": "not a prescription"}.
 
 JSON Format:
 {
-  "doctor_name": "Dr. Name",
-  "specialty": "Cardiologist / General Physician",
-  "hospital_clinic": "Hospital or Clinic Name",
-  "visit_date": "YYYY-MM-DD or readable date",
+  "doctor_name": "Doctor as written, or null",
+  "hospital_clinic": "Clinic or hospital as written, or null",
+  "visit_date": "Date as written, or null",
   "medicines": [
     {
-      "name": "Medicine Name",
-      "dosage": "e.g. 5mg or 1 tablet",
-      "when": "Morning after breakfast / Night after dinner",
-      "purpose": "For blood pressure / For sugar / For digestion",
-      "days": 30
+      "name": "Medicine name as written",
+      "dosage": "Dosage as written, or null",
+      "when": "Timing as written (for example: morning after food), or null",
+      "purpose": "Only if written on the prescription, otherwise null",
+      "days": "Number of days if written, otherwise null"
     }
   ],
-  "special_instructions": "e.g. Drink plenty of warm water, avoid salt",
-  "next_appointment": "e.g. In 1 month",
-  "plain_summary": "A warm, gentle explanation of the doctor's advice."
+  "special_instructions": "Instructions as written, or null",
+  "next_appointment": "As written, or null"
 }
 """
 

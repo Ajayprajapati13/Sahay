@@ -6,7 +6,8 @@ class Settings(BaseModel):
     version: str = "1.0.0"
     api_prefix: str = "/api"
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
-    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+    google_maps_api_key: str = os.getenv("GOOGLE_MAPS_API_KEY", "")  # Maps Embed key: public by design, restrict it by HTTP referrer
     host: str = os.getenv("HOST", "127.0.0.1")
     port: int = int(os.getenv("PORT", "8000"))
     secret_key: str = os.getenv("SECRET_KEY", "sahay-senior-guardian-secret-key-2026")

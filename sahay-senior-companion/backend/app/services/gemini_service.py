@@ -118,8 +118,10 @@ def _mask_account(value: Any) -> str:
     """Whatever the model returned, show only the last four digits."""
     text = str(value or "")
     digits = re.sub(r"\D", "", text)
+    if not digits:
+        return ""  # not visible in the photo: leave it blank rather than show a made-up number
     prefix = re.match(r"^([A-Za-z]{2,6})\b", text.strip())
-    masked = f"•••• {digits[-4:]}" if digits else "•••• 0000"
+    masked = f"•••• {digits[-4:]}"
     return f"{prefix.group(1).upper()} {masked}" if prefix else masked
 
 
@@ -190,8 +192,8 @@ class GeminiService:
         generation_config: Dict[str, Any] = {"temperature": 0.2, "maxOutputTokens": 2048}
         if json_mode:
             generation_config["responseMimeType"] = "application/json"
-        if "2.5-flash" in self.model:
-            # 2.5-flash spends output tokens on hidden "thinking"; these tasks don't need it and it can truncate the JSON.
+        if "flash" in self.model:
+            # Flash models spend output tokens on hidden "thinking"; these tasks don't need it and it can truncate the JSON.
             generation_config["thinkingConfig"] = {"thinkingBudget": 0}
 
         payload = {"contents": [{"role": "user", "parts": parts}], "generationConfig": generation_config}
@@ -210,6 +212,8 @@ class GeminiService:
                     logger.warning("Gemini returned no candidates (blocked or empty)")
                     return None
                 logger.warning(f"Gemini API returned status {resp.status_code}: {resp.text[:300]}")
+                if resp.status_code == 404:
+                    logger.error(f"Gemini model '{self.model}' is not available for this key. Set GEMINI_MODEL to a current model, e.g. gemini-3.6-flash.")
                 if resp.status_code in (429, 500, 503) and attempt == 0:
                     await asyncio.sleep(0.8)
                     continue
@@ -336,33 +340,8 @@ class GeminiService:
             if doc:
                 return doc
             logger.warning("Gemini returned no usable passbook data")
-        if image_b64:
-            # Never present sample data as if it had been read from the user's own document.
-            raise DocumentReadError("passbook")
-
-        # Demo sample (no photo supplied) matching Indian Banking Standards
-        return {
-            "bank_name": "State Bank of India (SBI)",
-            "branch_name": "Malleshwaram 8th Cross Branch, Bengaluru",
-            "branch_address": "Near Margosa Road Post Office, Opposite Old Banyan Tree, Bengaluru 560003",
-            "account_number_masked": mask_account_number("4821", prefix="SBI"),
-            "ifsc_code": "SBIN0001234",
-            "customer_name": "Ajay Kumar Sharma (Senior Citizen)",
-            "account_type": "Senior Citizen Pension Savings Account",
-            "is_authentic_document": True,
-            "trust_badge": "Verified Genuine Bank Passbook",
-            "plain_summary": "Your State Bank of India pension passbook has been verified. Your branch is Malleshwaram 8th Cross.",
-            "documents_to_carry": [
-                "1. Original Passbook (Mandatory for counter stamping)",
-                "2. Pre-filled Cash Withdrawal Slip / Cheque",
-                "3. Aadhaar Card copy (in case the officer asks for KYC verification)",
-                "4. Reading glasses and pen for signature"
-            ],
-            "landmark_route": {
-                "walking_bus": "Walk past Margosa Post Office for 200m. Turn left at the flower stall opposite the old banyan tree. The SBI branch is on the 1st floor with elevator access.",
-                "estimated_travel_time": "12 minutes by cab (2.4 km)"
-            }
-        }
+        # A document is only ever returned if it was really read from the user's photo.
+        raise DocumentReadError("passbook")
 
     async def analyze_prescription(self, image_b64: Optional[str] = None) -> Dict[str, Any]:
         """Analyzes medical prescription image."""
@@ -373,46 +352,16 @@ class GeminiService:
             if doc:
                 return doc
             logger.warning("Gemini returned no usable prescription data")
-        if image_b64:
-            # Never present sample data as if it had been read from the user's own document.
-            raise DocumentReadError("prescription")
-
-        return {
-            "doctor_name": "Dr. V. Sharma, M.D. (Cardiology)",
-            "hospital_clinic": "Apollo Clinic & Heart Center, Malleshwaram",
-            "visit_date": "2026-09-18",
-            "medicines": [
-                {
-                    "name": "Telmisartan 40 mg",
-                    "dosage": "1 tablet",
-                    "when": "Morning after breakfast (9:00 AM)",
-                    "purpose": "Controls blood pressure",
-                    "days": 30,
-                    "pill_reminder_active": True
-                },
-                {
-                    "name": "Atorvastatin 10 mg",
-                    "dosage": "1 tablet",
-                    "when": "Night after dinner (9:30 PM)",
-                    "purpose": "Maintains healthy cholesterol",
-                    "days": 30,
-                    "pill_reminder_active": True
-                },
-                {
-                    "name": "Shelcal 500 (Calcium + D3)",
-                    "dosage": "1 tablet",
-                    "when": "After lunch (2:00 PM)",
-                    "purpose": "Bone strength",
-                    "days": 30,
-                    "pill_reminder_active": True
-                }
-            ],
-            "special_instructions": "Check blood pressure once a week. Keep salt intake low. Drink warm water.",
-            "next_appointment": "In 4 weeks (October 16, 2026)",
-            "plain_summary": "Dr. Sharma noted that your blood pressure is well controlled. Please take your Telmisartan every morning without skipping."
-        }
+        # A document is only ever returned if it was really read from the user's photo.
+        raise DocumentReadError("prescription")
 
     async def analyze_scam(self, content_text: str = "", image_b64: Optional[str] = None) -> Dict[str, Any]:
+        """Public entry point: says which checker produced the answer ("gemini" or "rules")."""
+        result = await self._analyze_scam(content_text, image_b64)
+        result.setdefault("checked_by", "rules")
+        return result
+
+    async def _analyze_scam(self, content_text: str = "", image_b64: Optional[str] = None) -> Dict[str, Any]:
         """Checks text or a screenshot for scams. Reasons always come from real evidence; nothing is declared 'verified safe' without a model check."""
         cleaned = clean_text(content_text, 2000)
         evidence = scam_signals(cleaned)
@@ -426,8 +375,9 @@ class GeminiService:
                     # A scam message can try to talk the model into calling it safe; hard evidence wins.
                     logger.warning("Gemini judged a message safe despite hard scam evidence; keeping the warning")
                     return self._verdict_from_evidence(evidence)
+                verdict["checked_by"] = "gemini"
                 return verdict
-            logger.warning("Gemini returned no usable scam verdict; using evidence rules only")
+            logger.warning("Gemini returned no usable scam verdict (busy, rate-limited or unreadable); using evidence rules only")
 
         if self._is_flaggable(evidence):
             return self._verdict_from_evidence(evidence)

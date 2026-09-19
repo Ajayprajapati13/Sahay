@@ -86,24 +86,19 @@ async function handleSpokenCommand(text) {
     // Route to appropriate screen based on intent category
     if (intent.category === "bank_visit") {
       showTab("bank");
-      if (!bankJourney.passbookData) {
-        bankJourney.loadSamplePassbook();
-      }
     } else if (intent.category === "transport") {
       showTab("transport");
-      const dest = intent.parameters?.destination || "Ganesh Temple, Malleshwaram";
-      transportJourney.bookRideTo(dest);
+      // Only start a booking when the person actually named a place; never invent a destination.
+      const dest = intent.parameters?.destination;
+      if (dest) transportJourney.bookRideTo(dest);
     } else if (intent.category === "errands") {
       showTab("transport");
       transportJourney.reorderMonthly("pharmacy");
     } else if (intent.category === "health") {
       showTab("health");
-      if (!healthJourney.prescriptionData) {
-        healthJourney.loadSamplePrescription();
-      }
     } else if (intent.category === "scam_check") {
+      // Open the checker so the person can paste their own message; never run a canned sample for them.
       showTab("scam");
-      testScamSample("electricity");
     } else {
       showTab("dashboard");
     }

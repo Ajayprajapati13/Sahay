@@ -9,7 +9,18 @@ class BankJourney {
     this.assignedToken = "C-42";
     this.visitPlan = null;
     this.cabBooked = false;
+    this.scan = { status: "idle" };
   }
+
+  // Everything below comes from the passbook the person photographed and confirmed.
+  get bankName() { return this.passbookData ? this.passbookData.bank_name || "" : ""; }
+  get branchName() { return this.passbookData ? this.passbookData.branch_name || "" : ""; }
+  get accountMasked() { return this.passbookData ? this.passbookData.account_number_masked || "" : ""; }
+  get accountDigits() {
+    const m = String(this.accountMasked).match(/(\d{4})\D*$/);
+    return m ? m[1] : "";
+  }
+  get destination() { return [this.bankName, this.branchName].filter(Boolean).join(", "); }
 
   init() {
     this.render();
@@ -21,13 +32,96 @@ class BankJourney {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  async loadSamplePassbook() {
+  async scanPassbook() {
     voiceEngine.playChime("start");
-    // Run background scam security check
-    await scamGuard.inspectContent({ text: "SBI Savings Bank Passbook Account •••• 4821 Malleshwaram", silentIfSafe: true });
-    
-    this.passbookData = sampleData.passbook;
+    let photo;
+    try {
+      photo = await pickPhoto();
+    } catch (e) {
+      this.scan = { status: "error", error: e.message };
+      this.render();
+      return;
+    }
+    if (!photo) return; // cancelled
+    this.scan = { status: "reading", preview: photo };
+    this.render();
+
+    const result = await readDocumentPhoto("passbook", photo);
+    if (!result.ok) {
+      this.scan = { status: "error", error: result.error };
+      this.render();
+      return;
+    }
+    const d = result.data;
+    this.scan = {
+      status: "review",
+      preview: photo,
+      fields: {
+        bank_name: d.bank_name || "",
+        branch_name: d.branch_name || "",
+        customer_name: d.customer_name || "",
+        ifsc_code: d.ifsc_code || "",
+        account_last4: String(d.account_number_masked || "").replace(/\D/g, "").slice(-4)
+      }
+    };
+    this.render();
+    voiceEngine.speak("I have read your passbook. Please check the details on the screen, and tap yes if they are correct.");
+  }
+
+  confirmPassbook() {
+    const val = (id) => (document.getElementById(id) ? document.getElementById(id).value.trim() : "");
+    const bank = val("pb-bank");
+    if (!bank) {
+      alert("Please type the name of the bank.");
+      return;
+    }
+    const last4 = val("pb-acct").replace(/\D/g, "").slice(-4);
+    this.passbookData = {
+      bank_name: bank,
+      branch_name: val("pb-branch"),
+      customer_name: val("pb-name"),
+      ifsc_code: this.scan.fields.ifsc_code,
+      account_number_masked: last4 ? `•••• ${last4}` : "",
+      svg_preview: this.scan.preview
+    };
+    this.scan = { status: "idle" };
+    this.render();
     this.fetchPreparePlan();
+  }
+
+  renderScan() {
+    const s = this.scan || { status: "idle" };
+    if (s.status === "reading") {
+      return `<div role="status" style="font-size: 1.25rem; font-weight: 700; padding: 20px;">🔎 Reading your passbook… please wait a few seconds.</div>`;
+    }
+    if (s.status === "review") {
+      const f = s.fields;
+      const field = (id, label, value, extra = "") => `
+        <label style="display: block; text-align: left; font-size: 1.1rem; font-weight: 700; margin-top: 12px;">${label}
+          <input id="${id}" type="text" value="${esc(value)}" ${extra}
+                 style="display: block; width: 100%; min-height: 52px; font-size: 1.2rem; padding: 8px 12px; margin-top: 6px; border: 2px solid var(--border-card); border-radius: 12px;" />
+        </label>`;
+      return `
+        <img src="${esc(safeImgSrc(s.preview))}" alt="Your passbook photo" style="max-width: 100%; max-height: 260px; border-radius: 12px; box-shadow: var(--shadow-card);" />
+        <p style="font-size: 1.15rem; font-weight: 700; margin: 14px 0 4px;">Please check what I read. Fix anything that is wrong.</p>
+        ${field("pb-bank", "Bank", f.bank_name)}
+        ${field("pb-branch", "Branch", f.branch_name)}
+        ${field("pb-name", "Name on the passbook", f.customer_name)}
+        ${field("pb-acct", "Last 4 digits of the account number", f.account_last4, 'inputmode="numeric" maxlength="4"')}
+        <div class="btn-grid-row" style="margin-top: 18px;">
+          <button class="btn-primary" onclick="bankJourney.confirmPassbook()"><span>✅</span> Yes, this is correct</button>
+          <button class="btn-secondary" onclick="bankJourney.scanPassbook()"><span>📷</span> Take the photo again</button>
+        </div>`;
+    }
+    const error = s.status === "error"
+      ? `<p role="alert" style="font-size: 1.15rem; color: #B91C1C; font-weight: 700; margin-bottom: 14px;">${esc(s.error)}</p>`
+      : "";
+    return `
+      ${error}
+      <div class="btn-grid-row">
+        <button class="btn-primary" onclick="bankJourney.scanPassbook()"><span>📷</span> ${t("btn_scan_passbook")}</button>
+      </div>
+      <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 12px;">${esc(PHOTO_PRIVACY_NOTE)}</p>`;
   }
 
   async fetchPreparePlan() {
@@ -38,10 +132,10 @@ class BankJourney {
         body: JSON.stringify({
           purpose: this.selectedPurpose,
           amount: this.withdrawalAmount,
-          bank_name: "State Bank of India",
-          branch_name: "Malleshwaram 8th Cross",
-          account_number: "4821",
-          customer_name: "Ajay Kumar Sharma"
+          bank_name: this.bankName,
+          branch_name: this.branchName,
+          account_number: this.accountDigits,
+          customer_name: this.passbookData.customer_name || ""
         })
       });
       const data = await res.json();
@@ -56,13 +150,13 @@ class BankJourney {
   }
 
   confirmAndBookCab() {
-    const dest = "State Bank of India, Malleshwaram 8th Cross";
+    const dest = this.destination;
     const fare = "₹140";
 
     voiceEngine.confirmAction({
       title: "Confirm Cab Booking to Bank",
-      message: `You are booking an AC cab to ${dest}. The total fare is ${fare}. Your daughter Ananya will receive driver and vehicle details.`,
-      spokenMessage: `You are booking a cab to State Bank of India, Malleshwaram. Total fare is 140 rupees. Shall I confirm your ride now?`,
+      message: `You are booking an AC cab to ${esc(dest)}. The total fare is ${esc(fare)}.`,
+      spokenMessage: `You are booking a cab to ${dest}. Total fare is 140 rupees. Shall I confirm your ride now?`,
       confirmLabel: "Yes, Book My Cab",
       changeLabel: "No, Change Plan",
       onConfirm: async () => {
@@ -95,7 +189,7 @@ class BankJourney {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          account_masked: "SBI •••• 4821",
+          account_masked: this.accountMasked,
           purpose: this.selectedPurpose === "pension_check" ? "Pension Enquiry & Cash Withdrawal" : "Cash Withdrawal",
           token_code: this.assignedToken
         })
@@ -113,7 +207,7 @@ class BankJourney {
     if (resolved) {
       voiceEngine.confirmAction({
         title: "Log Completed Bank Transaction",
-        message: `Log your cash withdrawal of ₹10,000 at SBI Malleshwaram to your private Bank Account Activity Tracker?`,
+        message: `Log your cash withdrawal of ₹10,000 at ${esc(this.bankName)} to your private Bank Account Activity Tracker?`,
         spokenMessage: `Would you like me to log your withdrawal of 10,000 rupees to your private bank activity tracker?`,
         confirmLabel: "Yes, Save to Tracker",
         onConfirm: async () => {
@@ -124,9 +218,9 @@ class BankJourney {
               action_type: "cash_withdrawal",
               amount: "₹10,000",
               resolved: true,
-              bank_name: "State Bank of India",
-              branch: "Malleshwaram 8th Cross",
-              account_masked: "SBI •••• 4821"
+              bank_name: this.bankName,
+              branch: this.branchName,
+              account_masked: this.accountMasked
             })
           });
           const result = await res.json();
@@ -152,9 +246,9 @@ class BankJourney {
               amount: "₹28,000",
               resolved: false,
               unresolved_reason: "Pension credit delayed beyond due date. Branch officer requested central backend verification.",
-              bank_name: "State Bank of India",
-              branch: "Malleshwaram 8th Cross",
-              account_masked: "SBI •••• 4821"
+              bank_name: this.bankName,
+              branch: this.branchName,
+              account_masked: this.accountMasked
             })
           });
           const result = await res.json();
@@ -214,12 +308,12 @@ class BankJourney {
         <div style="background: var(--bg-card-hover); border: 2px dashed var(--border-card); border-radius: var(--radius-card); padding: 24px; text-align: center; margin-bottom: 24px;">
           <h4 style="font-size: 1.3rem; margin-bottom: 8px;">${t("passbook_upload_prompt")}</h4>
           <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 16px;">
-            AI will identify your branch, verify document safety, and prepare your checklist.
+            AI will read your bank and branch from a photo. You check it before anything is used.
           </p>
 
           ${passbook ? `
             <div style="margin: 16px 0;">
-              <img src="${esc(safeImgSrc(passbook.svg_preview))}" alt="Verified SBI Passbook" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
+              <img src="${esc(safeImgSrc(passbook.svg_preview))}" alt="Your passbook photo" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
               <div class="verified-safe-box" style="margin-top: 14px;">
                 <span>✅</span>
                 <div>
@@ -229,11 +323,7 @@ class BankJourney {
               </div>
             </div>
           ` : `
-            <div class="btn-grid-row">
-              <button class="btn-primary" onclick="bankJourney.loadSamplePassbook()">
-                <span>📷</span> ${t("btn_use_sample_passbook")}
-              </button>
-            </div>
+            ${this.renderScan()}
           `}
         </div>
 
@@ -281,9 +371,10 @@ class BankJourney {
             <div style="margin-bottom: 24px;">
               <h4 style="font-size: 1.35rem; margin-bottom: 12px;">${t("route_title")}</h4>
               <div style="background: var(--bg-card-hover); padding: 18px; border-radius: var(--radius-btn); margin-bottom: 16px; border: 2px solid var(--border-card);">
-                <p style="font-size: 1.15rem; font-weight: 600; color: var(--text-secondary);">
-                  📍 <strong>Landmark Directions:</strong> ${esc(plan.route_info.landmark_directions)}
+                <p style="font-size: 1.15rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;">
+                  📍 <strong>Your bank:</strong> ${esc(this.destination)}
                 </p>
+                ${mapView.prompt("bank-map", this.destination)}
               </div>
 
               ${this.cabBooked ? `

@@ -35,7 +35,7 @@ const translations = {
     
     passbook_upload_prompt: "Photograph or Select Your Passbook",
     btn_take_photo: "📷 Open Camera / Upload",
-    btn_use_sample_passbook: "✨ Use Verified SBI Passbook",
+    btn_scan_passbook: "📷 Take a Photo of My Passbook",
     
     checklist_title: "Checklist: Things to Bring With You",
     route_title: "How Would You Like to Travel?",
@@ -92,7 +92,7 @@ const translations = {
     
     passbook_upload_prompt: "पासबुक की फोटो खींचें या चुनें",
     btn_take_photo: "📷 कैमरा खोलें / फोटो अपलोड",
-    btn_use_sample_passbook: "✨ असली एसबीआई पासबुक चुनें",
+    btn_scan_passbook: "📷 अपनी पासबुक की फोटो लें",
     
     checklist_title: "साथ ले जाने वाले ज़रूरी दस्तावेज़",
     route_title: "आप बैंक कैसे जाना चाहेंगे?",

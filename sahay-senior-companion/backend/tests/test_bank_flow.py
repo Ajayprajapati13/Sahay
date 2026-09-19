@@ -22,7 +22,7 @@ async def test_bank_flagship_flow_prepare():
         assert data["status"] == "success"
         assert len(data["checklist"]) >= 3
         assert "Passbook" in data["checklist"][0]
-        assert data["prefilled_form"]["fields"]["Account Number"] == "SBI •••• 4821"
+        assert data["prefilled_form"]["fields"]["Account Number"] == "•••• 4821"
 
 @pytest.mark.asyncio
 async def test_bank_flagship_flow_assist_kiosk():

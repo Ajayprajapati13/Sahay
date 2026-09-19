@@ -63,6 +63,11 @@ async def health_check():
         "gemini_live": bool(settings.gemini_api_key)
     }
 
+@app.get("/api/config")
+async def public_config():
+    """Non-secret settings the browser needs. The Maps Embed key is public by design; restrict it by HTTP referrer in Google Cloud."""
+    return {"maps_embed_key": settings.google_maps_api_key, "gemini_live": bool(settings.gemini_api_key)}
+
 @app.get("/kiosk")
 async def serve_kiosk():
     kiosk_path = os.path.join(FRONTEND_DIR, "kiosk.html")
