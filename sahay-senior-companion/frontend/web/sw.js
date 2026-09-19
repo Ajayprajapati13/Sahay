@@ -1,5 +1,5 @@
 // Sahay Service Worker - caching core assets for offline reliability
-const CACHE_NAME = "sahay-cache-v3";
+const CACHE_NAME = "sahay-cache-v5";
 const ASSETS = [
   "/",
   "/css/sahay-theme.css",
@@ -21,7 +21,8 @@ const ASSETS = [
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).catch(() => {})
+    // cache: "reload" so a fresh deploy is never cached from a stale HTTP-cache copy
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS.map((url) => new Request(url, { cache: "reload" })))).catch(() => {})
   );
   self.skipWaiting();
 });
@@ -35,9 +36,20 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
+// Network first, so a new deploy is never hidden behind old cached files; the cache is only the offline fallback.
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== "GET" || url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  const revalidate = e.request.mode === "navigate" ? undefined : { cache: "no-cache" };
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request).catch(() => cached))
+    fetch(e.request, revalidate)
+      .then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(e.request).then((cached) => cached || caches.match("/")))
   );
 });

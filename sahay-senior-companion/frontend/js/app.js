@@ -36,12 +36,8 @@ async function initApp() {
 
   // Load sub-modules
   bankJourney.init();
-  await transportJourney.init();
-  await healthJourney.init();
-  await familyPortal.init();
-
-  // Load dashboard
-  await refreshDashboard();
+  // These requests do not depend on each other, so run them together instead of one after another.
+  await Promise.all([transportJourney.init(), healthJourney.init(), familyPortal.init(), refreshDashboard()]);
 }
 
 function showTab(tabId) {

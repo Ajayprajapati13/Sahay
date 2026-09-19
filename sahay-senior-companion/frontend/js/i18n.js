@@ -26,7 +26,7 @@ const translations = {
     btn_change: "Change Something",
     btn_read_back: "🔊 Read Aloud",
     
-    bank_title: "State Bank of India (SBI) Visit",
+    bank_title: "Bank Visit",
     bank_purpose_prompt: "What is the primary purpose of your bank visit today?",
     btn_purpose_withdraw: "💵 Withdraw Cash (₹10,000)",
     btn_purpose_pension: "📋 Pension Credit Enquiry",
@@ -35,7 +35,7 @@ const translations = {
     
     passbook_upload_prompt: "Photograph or Select Your Passbook",
     btn_take_photo: "📷 Open Camera / Upload",
-    btn_scan_passbook: "📷 Take a Photo of My Passbook",
+    btn_scan_passbook: "📷 Add a Photo of My Passbook",
     
     checklist_title: "Checklist: Things to Bring With You",
     route_title: "How Would You Like to Travel?",
@@ -83,7 +83,7 @@ const translations = {
     btn_change: "कुछ बदलना है",
     btn_read_back: "🔊 पढ़कर सुनाएं",
     
-    bank_title: "भारतीय स्टेट बैंक (SBI) विज़िट",
+    bank_title: "बैंक यात्रा",
     bank_purpose_prompt: "आज आप बैंक में क्या काम करवाना चाहते हैं?",
     btn_purpose_withdraw: "💵 पैसे निकालना (₹10,000)",
     btn_purpose_pension: "📋 पेंशन का पता करना",
@@ -92,7 +92,7 @@ const translations = {
     
     passbook_upload_prompt: "पासबुक की फोटो खींचें या चुनें",
     btn_take_photo: "📷 कैमरा खोलें / फोटो अपलोड",
-    btn_scan_passbook: "📷 अपनी पासबुक की फोटो लें",
+    btn_scan_passbook: "📷 अपनी पासबुक की फोटो जोड़ें",
     
     checklist_title: "साथ ले जाने वाले ज़रूरी दस्तावेज़",
     route_title: "आप बैंक कैसे जाना चाहेंगे?",

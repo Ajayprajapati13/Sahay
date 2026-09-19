@@ -9,8 +9,7 @@ class HealthJourney {
   }
 
   async init() {
-    await this.fetchReminders();
-    await this.fetchVisits();
+    await Promise.all([this.fetchReminders(), this.fetchVisits()]);
     this.render();
   }
 
@@ -159,7 +158,7 @@ class HealthJourney {
     return `
       ${error}
       <div class="btn-grid-row">
-        <button class="btn-primary" style="background: #0D9488;" onclick="healthJourney.scanPrescription()"><span>📷</span> Take a Photo of My Prescription</button>
+        <button class="btn-primary" style="background: #0D9488;" onclick="healthJourney.scanPrescription()"><span>📷</span> Add a Photo of My Prescription</button>
       </div>
       <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 12px;">${esc(PHOTO_PRIVACY_NOTE)}</p>`;
   }
