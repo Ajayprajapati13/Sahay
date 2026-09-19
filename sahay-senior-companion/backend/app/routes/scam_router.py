@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from ..services.gemini_service import gemini_service
 from ..services.data_store import data_store
-from ..utils.security import sanitize_text
+from ..utils.security import clean_text
 
 router = APIRouter(prefix="/scam", tags=["Scam & Trust Guardian Layer"])
 
@@ -15,7 +15,7 @@ class ScamCheckRequest(BaseModel):
 @router.post("/check")
 async def analyze_message_for_scam(req: ScamCheckRequest):
     """Background or user-triggered scan for fraud patterns, explaining risk in plain language."""
-    content = sanitize_text(req.text or "")
+    content = clean_text(req.text or "", 2000)
     if not content and not req.image_b64:
         raise HTTPException(status_code=400, detail="Provide text or image to inspect")
 

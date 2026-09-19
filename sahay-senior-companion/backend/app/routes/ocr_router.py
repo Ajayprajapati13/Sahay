@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
-from ..services.gemini_service import gemini_service
+from ..services.gemini_service import gemini_service, DocumentReadError
 
 router = APIRouter(prefix="/ocr", tags=["Multimodal Document Understanding"])
+
+UNREADABLE_PHOTO = "I could not read this photo right now. Please try again with a clear, well-lit picture."
 
 class DocumentAnalyzeRequest(BaseModel):
     image_b64: Optional[str] = Field(None, max_length=6_000_000)
@@ -13,7 +15,10 @@ class DocumentAnalyzeRequest(BaseModel):
 @router.post("/passbook")
 async def analyze_passbook_document(req: DocumentAnalyzeRequest):
     """Analyzes a photographed bank passbook with multimodal OCR & fraud checking."""
-    result = await gemini_service.analyze_passbook(image_b64=req.image_b64)
+    try:
+        result = await gemini_service.analyze_passbook(image_b64=req.image_b64)
+    except DocumentReadError:
+        raise HTTPException(status_code=503, detail=UNREADABLE_PHOTO)
     return {
         "status": "success",
         "data": result
@@ -22,7 +27,10 @@ async def analyze_passbook_document(req: DocumentAnalyzeRequest):
 @router.post("/prescription")
 async def analyze_prescription_document(req: DocumentAnalyzeRequest):
     """Analyzes a photographed medical prescription, extracting dosage & directions."""
-    result = await gemini_service.analyze_prescription(image_b64=req.image_b64)
+    try:
+        result = await gemini_service.analyze_prescription(image_b64=req.image_b64)
+    except DocumentReadError:
+        raise HTTPException(status_code=503, detail=UNREADABLE_PHOTO)
     return {
         "status": "success",
         "data": result
