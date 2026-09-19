@@ -3,10 +3,11 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from ..services.data_store import data_store
 from ..services.gemini_service import gemini_service
+from ..utils.security import CleanModel
 
 router = APIRouter(prefix="/health", tags=["Journey 3: Health & Hospital"])
 
-class HealthVisitLogRequest(BaseModel):
+class HealthVisitLogRequest(CleanModel):
     doctor: str = "Dr. V. Sharma, M.D. (Cardiology)"
     clinic: str = "Apollo Clinic, Malleshwaram"
     date: Optional[str] = "2026-09-18"
@@ -14,7 +15,7 @@ class HealthVisitLogRequest(BaseModel):
     next_visit: Optional[str] = "October 16, 2026"
     medicines: Optional[List[Dict[str, Any]]] = []
 
-class MedicationToggleRequest(BaseModel):
+class MedicationToggleRequest(CleanModel):
     reminder_id: str
 
 @router.get("/visits")

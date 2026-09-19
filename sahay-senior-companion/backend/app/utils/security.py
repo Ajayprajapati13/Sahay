@@ -2,6 +2,7 @@ import re
 import html
 import time
 from typing import Dict, Tuple
+from pydantic import BaseModel, field_validator
 
 def mask_account_number(acc: str, prefix: str = "") -> str:
     """Masks financial account numbers showing only the last 4 digits."""
@@ -37,6 +38,36 @@ def sanitize_text(text: str) -> str:
     # Normalize whitespace
     normalized = re.sub(r'\s+', ' ', escaped).strip()
     return normalized
+
+def clean_text(text, max_len: int = 500) -> str:
+    """Strips markup and control characters from free text that will be stored and shown later.
+
+    Deliberately does NOT entity-escape: the frontend encodes at output (esc() in safe-html.js),
+    and escaping in both places would show literal "&amp;". Tags are removed and any stray
+    angle brackets dropped, so nothing that looks like markup ever reaches shared state.
+    """
+    cleaned = re.sub(r'<[^>]*>', '', str(text))
+    cleaned = cleaned.replace('<', '').replace('>', '')
+    cleaned = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', cleaned)
+    return cleaned.strip()[:max_len]
+
+def clean_deep(value, max_len: int = 500):
+    """Applies clean_text to every string inside nested dicts and lists (bounded in size)."""
+    if isinstance(value, str):
+        return clean_text(value, max_len)
+    if isinstance(value, dict):
+        return {clean_text(k, 100): clean_deep(v, max_len) for k, v in list(value.items())[:50]}
+    if isinstance(value, list):
+        return [clean_deep(v, max_len) for v in value[:50]]
+    return value
+
+class CleanModel(BaseModel):
+    """Request-model base class: every string field is markup-stripped before it can be stored."""
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def _strip_markup(cls, value):
+        return clean_deep(value)
 
 def client_key(request, scope: str) -> str:
     """Builds a per-client rate-limit key so one user's activity never throttles another's.

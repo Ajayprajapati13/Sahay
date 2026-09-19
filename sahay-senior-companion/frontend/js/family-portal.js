@@ -137,9 +137,9 @@ class FamilyPortal {
             <div style="display: flex; flex-direction: column; gap: 12px;">
               ${this.familyFeed.map(item => `
                 <div style="background: #FFFFFF; border: 1px solid #BBF7D0; border-radius: 14px; padding: 16px;">
-                  <div style="font-size: 1.15rem; font-weight: 800; color: #1F2937;">${item.title}</div>
-                  <div style="font-size: 1.05rem; color: #4B5563; margin-top: 4px;">${item.detail}</div>
-                  <div style="font-size: 0.9rem; color: #9CA3AF; margin-top: 6px;">⏱️ ${item.timestamp || 'Today'}</div>
+                  <div style="font-size: 1.15rem; font-weight: 800; color: #1F2937;">${esc(item.title)}</div>
+                  <div style="font-size: 1.05rem; color: #4B5563; margin-top: 4px;">${esc(item.detail)}</div>
+                  <div style="font-size: 0.9rem; color: #9CA3AF; margin-top: 6px;">⏱️ ${esc(item.timestamp || 'Today')}</div>
                 </div>
               `).join('')}
             </div>

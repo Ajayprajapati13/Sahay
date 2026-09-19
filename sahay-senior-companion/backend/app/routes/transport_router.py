@@ -2,18 +2,18 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from ..services.data_store import data_store
-from ..utils.security import booking_rate_limiter, sanitize_text, client_key
+from ..utils.security import booking_rate_limiter, sanitize_text, client_key, CleanModel
 
 router = APIRouter(prefix="/transport", tags=["Journey 2: Transportation & Errands"])
 
-class BookRideRequest(BaseModel):
+class BookRideRequest(CleanModel):
     destination: str
     pickup: Optional[str] = "Home (Margosa Road)"
     vehicle_type: Optional[str] = "Sedan (AC Comfort)"
     fare_estimate: Optional[str] = "₹140"
     share_with_family: Optional[bool] = None # If None, defaults to current family permission
 
-class ReorderRequest(BaseModel):
+class ReorderRequest(CleanModel):
     category: Optional[str] = "pharmacy" # or "groceries"
     store_name: Optional[str] = "Apollo Pharmacy Malleshwaram"
 
@@ -28,7 +28,7 @@ async def get_saved_places():
 @router.post("/estimate-fare")
 async def estimate_fare(req: BookRideRequest):
     """Calculates plain-language fare breakdown with zero hidden charges."""
-    dest = sanitize_text(req.destination)
+    dest = req.destination
     return {
         "destination": dest,
         "base_fare": "₹80",
@@ -46,7 +46,7 @@ async def book_ride(req: BookRideRequest, request: Request):
     if not allowed:
         raise HTTPException(status_code=429, detail=f"Please wait {retry} seconds before booking another ride.")
 
-    dest = sanitize_text(req.destination)
+    dest = req.destination
     perms = data_store.get_family_permissions()
     should_share = req.share_with_family if req.share_with_family is not None else perms.get("share_trips", True)
 

@@ -26,7 +26,7 @@ class TransportJourney {
   bookRideTo(destination, fare = "₹140") {
     voiceEngine.confirmAction({
       title: `Confirm Cab to ${destination}`,
-      message: `Book a safe, air-conditioned cab to ${destination}? Total fare is ${fare}. Driver details will be shared with your daughter Ananya.`,
+      message: `Book a safe, air-conditioned cab to ${esc(destination)}? Total fare is ${esc(fare)}. Driver details will be shared with your daughter Ananya.`,
       spokenMessage: `Would you like me to book a cab to ${destination} for ${fare}?`,
       confirmLabel: "Yes, Book My Cab",
       changeLabel: "Cancel",
@@ -55,19 +55,19 @@ class TransportJourney {
   async showLandmarks(placeId) {
     voiceEngine.playChime("start");
     try {
-      const res = await fetch(`/api/transport/landmarks/${placeId}`);
+      const res = await fetch(`/api/transport/landmarks/${encodeURIComponent(placeId)}`);
       const data = await res.json();
       
       const modal = document.createElement("div");
       modal.className = "confirmation-modal-backdrop";
       modal.innerHTML = `
         <div class="confirmation-card" style="text-align: left;">
-          <h3 style="color: var(--brand-primary); margin-bottom: 12px;">📍 ${data.title}</h3>
+          <h3 style="color: var(--brand-primary); margin-bottom: 12px;">📍 ${esc(data.title)}</h3>
           <ul class="plain-checklist">
-            ${data.steps.map(s => `<li>${s}</li>`).join('')}
+            ${data.steps.map(s => `<li>${esc(s)}</li>`).join('')}
           </ul>
           <div style="background: #F1F5F9; padding: 14px; border-radius: 12px; margin-bottom: 20px;">
-            <strong>🚌 Bus Options:</strong> ${data.bus_options}
+            <strong>🚌 Bus Options:</strong> ${esc(data.bus_options)}
           </div>
           <button id="close-landmark-btn" class="btn-primary">
             <span>👍</span> Understood, Thank You
@@ -93,7 +93,7 @@ class TransportJourney {
 
       voiceEngine.confirmAction({
         title: `Reorder Last Month's ${category === "pharmacy" ? "Medicines" : "Groceries"}`,
-        message: `Items from ${data.store}:<br>${data.items.map(i => `&bull; <strong>${i.item}</strong> (${i.price})`).join('<br>')}<br><br>Total: <strong>${data.total_amount}</strong> (Free Doorstep Delivery)`,
+        message: `Items from ${esc(data.store)}:<br>${data.items.map(i => `&bull; <strong>${esc(i.item)}</strong> (${esc(i.price)})`).join('<br>')}<br><br>Total: <strong>${esc(data.total_amount)}</strong> (Free Doorstep Delivery)`,
         spokenMessage: data.spoken_confirmation,
         confirmLabel: "Yes, Place Order",
         onConfirm: () => {
@@ -122,15 +122,15 @@ class TransportJourney {
             <h4 style="color: #1D4ED8; font-size: 1.35rem; margin-bottom: 6px;">🚗 Cab En Route: Arriving in 4 Mins</h4>
             <div class="giant-number-badge">
               <div class="label">Show this OTP to Driver</div>
-              <div class="number">${this.activeRide.otp}</div>
+              <div class="number">${esc(this.activeRide.otp)}</div>
             </div>
             <div style="font-size: 1.2rem; color: #1E40AF; line-height: 1.6; margin-bottom: 12px;">
-              <strong>Driver:</strong> ${this.activeRide.driver.name} (${this.activeRide.driver.rating})<br>
-              <strong>Vehicle:</strong> ${this.activeRide.driver.vehicle} (${this.activeRide.driver.plate})<br>
-              <strong>Fixed Fare:</strong> ${this.activeRide.fare} (No surge)
+              <strong>Driver:</strong> ${esc(this.activeRide.driver.name)} (${esc(this.activeRide.driver.rating)})<br>
+              <strong>Vehicle:</strong> ${esc(this.activeRide.driver.vehicle)} (${esc(this.activeRide.driver.plate)})<br>
+              <strong>Fixed Fare:</strong> ${esc(this.activeRide.fare)} (No surge)
             </div>
             <div style="font-size: 1.05rem; color: #15803D; font-weight: 700;">
-              ✔ ${this.activeRide.family_message}
+              ✔ ${esc(this.activeRide.family_message)}
             </div>
             <button class="btn-secondary" style="margin-top: 16px;" onclick="transportJourney.activeRide = null; transportJourney.render();">
               <span>✕</span> Dismiss Cab Screen
@@ -144,14 +144,14 @@ class TransportJourney {
           ${this.savedPlaces.map(place => `
             <div style="background: var(--bg-card-hover); border: 2px solid var(--border-card); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
               <div>
-                <h5 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">${place.label}</h5>
-                <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 10px;">${place.landmark}</p>
+                <h5 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">${esc(place.label)}</h5>
+                <p style="font-size: 1.05rem; color: var(--text-muted); margin-bottom: 10px;">${esc(place.landmark)}</p>
               </div>
               <div style="display: flex; gap: 8px; margin-top: 10px;">
-                <button class="btn-primary" style="min-height: 48px; font-size: 1.05rem; padding: 8px 14px;" onclick="transportJourney.bookRideTo('${place.label}')">
+                <button class="btn-primary" style="min-height: 48px; font-size: 1.05rem; padding: 8px 14px;" onclick="transportJourney.bookRideTo(${jsArg(place.label)})">
                   🚗 Book Cab
                 </button>
-                <button class="btn-secondary" style="min-height: 48px; font-size: 1.05rem; padding: 8px 14px;" onclick="transportJourney.showLandmarks('${place.id}')">
+                <button class="btn-secondary" style="min-height: 48px; font-size: 1.05rem; padding: 8px 14px;" onclick="transportJourney.showLandmarks(${jsArg(place.id)})">
                   🚶 Landmarks
                 </button>
               </div>

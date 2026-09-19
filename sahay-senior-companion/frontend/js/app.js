@@ -158,9 +158,9 @@ function renderUnifiedTracking(summary) {
         </h4>
         ${bank ? `
           <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 10px;">
-            ${bank.plain_text}
+            ${esc(bank.plain_text)}
           </p>
-          <div style="font-size: 0.95rem; color: var(--text-muted);">Status: <strong>${bank.status.replace('_', ' ').toUpperCase()}</strong></div>
+          <div style="font-size: 0.95rem; color: var(--text-muted);">Status: <strong>${esc(bank.status.replace('_', ' ').toUpperCase())}</strong></div>
         ` : `
           <p style="font-size: 1.05rem; color: var(--text-muted);">No bank visits logged yet.</p>
         `}
@@ -176,12 +176,12 @@ function renderUnifiedTracking(summary) {
         </h4>
         ${reminders.length > 0 ? `
           <div style="font-size: 1.15rem; font-weight: 700; color: #065F46; margin-bottom: 6px;">
-            ${reminders[0].title}
+            ${esc(reminders[0].title)}
           </div>
           <p style="font-size: 1.05rem; color: var(--text-secondary); margin-bottom: 10px;">
-            ${reminders[0].detail}
+            ${esc(reminders[0].detail)}
           </p>
-          <div style="font-size: 0.95rem; color: #0D9488;">⏱️ ${reminders[0].due_time}</div>
+          <div style="font-size: 0.95rem; color: #0D9488;">⏱️ ${esc(reminders[0].due_time)}</div>
         ` : `
           <p style="font-size: 1.05rem; color: var(--text-muted);">All medicines taken for today!</p>
         `}
@@ -197,7 +197,7 @@ function renderUnifiedTracking(summary) {
         </h4>
         ${trip ? `
           <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 10px;">
-            Last Trip: <strong>${trip.destination}</strong> with driver ${trip.driver_name}. Status: <strong>${trip.status}</strong>
+            Last Trip: <strong>${esc(trip.destination)}</strong> with driver ${esc(trip.driver_name)}. Status: <strong>${esc(trip.status)}</strong>
           </p>
         ` : `
           <p style="font-size: 1.05rem; color: var(--text-muted);">Quick booking to frequent places ready.</p>

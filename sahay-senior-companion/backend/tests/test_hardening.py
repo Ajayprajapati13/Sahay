@@ -79,3 +79,47 @@ def test_rate_limit_is_isolated_between_clients():
     assert limiter.is_allowed(a)[0] and limiter.is_allowed(a)[0]
     assert limiter.is_allowed(a)[0] is False
     assert limiter.is_allowed(b)[0] is True
+
+
+# ---- stored-XSS defence: markup is stripped from anything the API stores in shared state
+
+from app.utils.security import clean_text, clean_deep
+
+
+def test_clean_text_strips_markup_but_keeps_punctuation():
+    assert clean_text('<img src=x onerror="alert(1)">Dr X') == "Dr X"
+    assert clean_text("<script>alert(1)</script>Hi") == "alert(1)Hi"
+    assert "<" not in clean_text("<img src=x onerror=alert(1)")  # unclosed tag
+    assert clean_text("Daughter's house & \"garden\"") == "Daughter's house & \"garden\""
+    assert clean_text("x" * 900) == "x" * 500
+
+
+def test_clean_deep_handles_nested_structures():
+    dirty = [{"name": "<svg onload=1>Aspirin", "tags": ["<b>a</b>", 3, None]}]
+    assert clean_deep(dirty) == [{"name": "Aspirin", "tags": ["a", 3, None]}]
+
+
+@pytest.mark.asyncio
+async def test_hostile_bank_and_health_input_is_never_stored_as_markup():
+    hostile = '<img src=x onerror="window.__xss=1">'
+    async with _client() as client:
+        bank = await client.post("/api/bank/complete", json={
+            "action_type": "cash_withdrawal", "resolved": True,
+            "bank_name": hostile + "SBI", "branch": "<script>alert(1)</script>Main", "amount": "1"})
+        health = await client.post("/api/health/log-visit", json={
+            "doctor": hostile + "Dr X", "plain_summary": "<b>hi</b> & bye",
+            "medicines": [{"name": "<svg onload=1>Aspirin", "dosage": "75mg", "when": "morning", "purpose": "<i>heart</i>"}]})
+        state = await client.get("/api/bank/activities")
+    assert bank.status_code == 200 and health.status_code == 200
+    stored = bank.text + health.text + state.text
+    assert "<" not in stored.replace("\u003c", "<")
+    assert "onerror" not in bank.json()["activity"]["bank_name"]
+    assert health.json()["visit"]["plain_summary"] == "hi & bye"
+    assert health.json()["visit"]["medicines"][0]["name"] == "Aspirin"
+
+
+@pytest.mark.asyncio
+async def test_transport_destination_keeps_apostrophes_and_ampersands():
+    async with _client() as client:
+        res = await client.post("/api/transport/estimate-fare", json={"destination": "Daughter's house & <u>garden</u>"})
+    assert res.json()["destination"] == "Daughter's house & garden"

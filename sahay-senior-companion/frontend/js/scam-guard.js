@@ -41,17 +41,17 @@ class ScamGuard {
     modal.setAttribute("aria-modal", "true");
 
     const reasonsList = (scamResult.reasons || [])
-      .map(r => `<li>${r}</li>`)
+      .map(r => `<li>${esc(r)}</li>`)
       .join("");
 
     modal.innerHTML = `
       <div class="confirmation-card" style="border-color: var(--status-danger);">
         <div class="scam-alert-box" style="margin-top: 0;">
-          <h4><span>🚨</span> ${scamResult.plain_headline || "Warning: Suspicious Message!"}</h4>
-          <p style="font-size: 1.15rem; font-weight: 700; margin: 8px 0;">Pattern: ${scamResult.scam_type}</p>
+          <h4><span>🚨</span> ${esc(scamResult.plain_headline || "Warning: Suspicious Message!")}</h4>
+          <p style="font-size: 1.15rem; font-weight: 700; margin: 8px 0;">Pattern: ${esc(scamResult.scam_type)}</p>
           <ul style="text-align: left;">${reasonsList}</ul>
           <div class="safe-action">
-            <strong>What you should do:</strong> ${scamResult.safe_action}
+            <strong>What you should do:</strong> ${esc(scamResult.safe_action)}
           </div>
         </div>
         
@@ -92,8 +92,8 @@ class ScamGuard {
         <div class="verified-safe-box">
           <span style="font-size: 2rem;">✅</span>
           <div>
-            <h3>${safeResult.plain_headline}</h3>
-            <p style="font-size: 1.1rem; color: #15803D; margin-top: 4px;">${safeResult.safe_action}</p>
+            <h3>${esc(safeResult.plain_headline)}</h3>
+            <p style="font-size: 1.1rem; color: #15803D; margin-top: 4px;">${esc(safeResult.safe_action)}</p>
           </div>
         </div>
         <button id="safe-ok-btn" class="btn-primary" style="margin-top: 20px;">

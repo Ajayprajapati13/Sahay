@@ -219,12 +219,12 @@ class BankJourney {
 
           ${passbook ? `
             <div style="margin: 16px 0;">
-              <img src="${passbook.svg_preview}" alt="Verified SBI Passbook" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
+              <img src="${esc(safeImgSrc(passbook.svg_preview))}" alt="Verified SBI Passbook" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
               <div class="verified-safe-box" style="margin-top: 14px;">
                 <span>✅</span>
                 <div>
-                  <strong>${passbook.bank_name} - ${passbook.branch_name}</strong>
-                  <div style="font-size: 1.05rem; color: #15803D;">Account: ${passbook.account_number_masked} (Holder: ${passbook.customer_name})</div>
+                  <strong>${esc(passbook.bank_name)} - ${esc(passbook.branch_name)}</strong>
+                  <div style="font-size: 1.05rem; color: #15803D;">Account: ${esc(passbook.account_number_masked)} (Holder: ${esc(passbook.customer_name)})</div>
                 </div>
               </div>
             </div>
@@ -260,7 +260,7 @@ class BankJourney {
               <h4 style="font-size: 1.35rem; color: var(--text-primary);">${t("checklist_title")}</h4>
               <ul class="plain-checklist">
                 ${plan.checklist.map(item => `
-                  <li><span class="icon-check">✔</span> ${item}</li>
+                  <li><span class="icon-check">✔</span> ${esc(item)}</li>
                 `).join('')}
               </ul>
             </div>
@@ -268,11 +268,11 @@ class BankJourney {
             <!-- Pre-filled Form Slip -->
             <div style="background: #F0FDF4; border: 2px solid #86EFAC; border-radius: var(--radius-card); padding: 22px; margin-bottom: 24px;">
               <h4 style="font-size: 1.25rem; color: #166534; margin-bottom: 10px;">
-                <span>📝</span> Pre-filled: ${plan.prefilled_form.title}
+                <span>📝</span> Pre-filled: ${esc(plan.prefilled_form.title)}
               </h4>
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; font-size: 1.1rem;">
                 ${Object.entries(plan.prefilled_form.fields).map(([k, v]) => `
-                  <div><strong style="color: #374151;">${k}:</strong> <span style="color: #111827;">${v}</span></div>
+                  <div><strong style="color: #374151;">${esc(k)}:</strong> <span style="color: #111827;">${esc(v)}</span></div>
                 `).join('')}
               </div>
             </div>
@@ -282,7 +282,7 @@ class BankJourney {
               <h4 style="font-size: 1.35rem; margin-bottom: 12px;">${t("route_title")}</h4>
               <div style="background: var(--bg-card-hover); padding: 18px; border-radius: var(--radius-btn); margin-bottom: 16px; border: 2px solid var(--border-card);">
                 <p style="font-size: 1.15rem; font-weight: 600; color: var(--text-secondary);">
-                  📍 <strong>Landmark Directions:</strong> ${plan.route_info.landmark_directions}
+                  📍 <strong>Landmark Directions:</strong> ${esc(plan.route_info.landmark_directions)}
                 </p>
               </div>
 
@@ -291,14 +291,14 @@ class BankJourney {
                   <h4 style="color: #1D4ED8; font-size: 1.3rem;">🚗 Cab Confirmed & En Route!</h4>
                   <div class="giant-number-badge">
                     <div class="label">Share this OTP with Driver</div>
-                    <div class="number">${this.cabDetails.otp}</div>
+                    <div class="number">${esc(this.cabDetails.otp)}</div>
                   </div>
                   <p style="font-size: 1.15rem; color: #1E40AF; margin-bottom: 10px;">
-                    <strong>Driver:</strong> ${this.cabDetails.driver.name} (${this.cabDetails.driver.rating})<br>
-                    <strong>Car:</strong> ${this.cabDetails.driver.vehicle} (${this.cabDetails.driver.plate})
+                    <strong>Driver:</strong> ${esc(this.cabDetails.driver.name)} (${esc(this.cabDetails.driver.rating)})<br>
+                    <strong>Car:</strong> ${esc(this.cabDetails.driver.vehicle)} (${esc(this.cabDetails.driver.plate)})
                   </p>
                   <p style="font-size: 1.05rem; color: #15803D; font-weight: 700;">
-                    ✔ ${this.cabDetails.family_message}
+                    ✔ ${esc(this.cabDetails.family_message)}
                   </p>
                 </div>
               ` : `
@@ -347,9 +347,9 @@ class BankJourney {
         <!-- Giant Priority Token Display -->
         <div class="giant-number-badge" style="border-color: #0D9488; background: #F0FDFA;">
           <div class="label">${t("token_label")}</div>
-          <div class="number" style="color: #0F766E;">${kiosk.token_number}</div>
+          <div class="number" style="color: #0F766E;">${esc(kiosk.token_number)}</div>
           <div style="font-size: 1.25rem; font-weight: 700; color: #115E59; margin-top: 8px;">
-            Now Calling: <strong>${kiosk.current_token_serving}</strong> &bull; People Ahead: <strong>${kiosk.people_ahead}</strong>
+            Now Calling: <strong>${esc(kiosk.current_token_serving)}</strong> &bull; People Ahead: <strong>${esc(kiosk.people_ahead)}</strong>
           </div>
           <div style="font-size: 1.15rem; font-weight: 600; color: #047857; margin-top: 6px;">
             ⏱️ ${t("queue_wait_label")}: ~${kiosk.estimated_wait_minutes} Minutes
@@ -362,7 +362,7 @@ class BankJourney {
             <span>🪑</span> Where to Sit & Wait
           </h4>
           <p style="font-size: 1.2rem; line-height: 1.6; color: var(--text-secondary);">
-            ${kiosk.plain_guidance}
+            ${esc(kiosk.plain_guidance)}
           </p>
         </div>
 
@@ -372,7 +372,7 @@ class BankJourney {
             <span>📋</span> ${t("counter_guide_title")} (${kiosk.assigned_counter})
           </h4>
           <ul class="plain-checklist">
-            <li><span>1️⃣</span> Greet Mr. Satish Narayanan at Counter 3. Show your Token ${kiosk.token_number}.</li>
+            <li><span>1️⃣</span> Greet Mr. Satish Narayanan at Counter 3. Show your Token ${esc(kiosk.token_number)}.</li>
             <li><span>2️⃣</span> Hand over your Original Passbook and the pre-filled withdrawal slip.</li>
             <li><span>3️⃣</span> The officer will ask you to sign on the back of the slip. Sign twice using your comfortable pen.</li>
             <li><span>4️⃣</span> Collect your ₹10,000 cash, passbook with stamped entry, and counter receipt.</li>
@@ -409,7 +409,7 @@ class BankJourney {
             <div>
               <h4 style="font-size: 1.35rem; color: #15803D;">Visit Completed & Recorded Safely!</h4>
               <p style="font-size: 1.15rem; color: #166534; margin-top: 4px;">
-                ${result.activity ? result.activity.plain_text : "Your cash withdrawal of ₹10,000 has been logged to your Bank Activity Tracker."}
+                ${esc(result.activity ? result.activity.plain_text : "Your cash withdrawal of ₹10,000 has been logged to your Bank Activity Tracker.")}
               </p>
             </div>
           </div>
@@ -430,7 +430,7 @@ class BankJourney {
               </button>
             </div>
             <pre style="font-family: inherit; font-size: 1.05rem; white-space: pre-wrap; line-height: 1.6; background: #F8FAFC; padding: 18px; border-radius: 12px; border: 1px solid #E2E8F0; color: #1F2937;">
-${result.drafted_letter || "Follow-up letter drafted to Branch Manager."}
+${esc(result.drafted_letter || "Follow-up letter drafted to Branch Manager.")}
             </pre>
           </div>
         `}

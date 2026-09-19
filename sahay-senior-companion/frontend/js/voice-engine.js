@@ -197,14 +197,14 @@ class VoiceEngine {
         <div class="readback-badge">
           <span>🔊</span> Readback Confirmation
         </div>
-        <h3 id="confirm-modal-title">${title}</h3>
+        <h3 id="confirm-modal-title">${esc(title)}</h3>
         <div class="readback-message">${message}</div>
         <div class="btn-grid-row">
           <button id="modal-confirm-btn" class="btn-primary">
-            <span>✅</span> ${confirmLabel || t("btn_confirm")}
+            <span>✅</span> ${confirmLabel ? esc(confirmLabel) : t("btn_confirm")}
           </button>
           <button id="modal-cancel-btn" class="btn-secondary">
-            <span>↩️</span> ${changeLabel || t("btn_change")}
+            <span>↩️</span> ${changeLabel ? esc(changeLabel) : t("btn_change")}
           </button>
         </div>
       </div>

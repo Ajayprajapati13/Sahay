@@ -3,11 +3,11 @@ from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from ..services.gemini_service import gemini_service
 from ..services.data_store import data_store
-from ..utils.security import mask_account_number, sanitize_text, submission_rate_limiter, client_key
+from ..utils.security import mask_account_number, sanitize_text, submission_rate_limiter, client_key, CleanModel
 
 router = APIRouter(prefix="/bank", tags=["Journey 1: Bank & Government Visit"])
 
-class BankPrepareRequest(BaseModel):
+class BankPrepareRequest(CleanModel):
     purpose: str # "withdraw_cash", "pension_check", "kyc_update", "form_15h"
     amount: Optional[str] = "10000"
     bank_name: Optional[str] = "State Bank of India"
@@ -15,12 +15,12 @@ class BankPrepareRequest(BaseModel):
     account_number: Optional[str] = "4821"
     customer_name: Optional[str] = "Ajay Kumar Sharma"
 
-class KioskCheckinRequest(BaseModel):
+class KioskCheckinRequest(CleanModel):
     account_masked: Optional[str] = "SBI •••• 4821"
     purpose: str
     token_code: Optional[str] = "C-42"
 
-class BankCompleteRequest(BaseModel):
+class BankCompleteRequest(CleanModel):
     action_type: str # "cash_withdrawal", "pension_inquiry", "kyc_update"
     amount: Optional[str] = "₹10,000"
     resolved: bool = True
@@ -29,7 +29,7 @@ class BankCompleteRequest(BaseModel):
     branch: Optional[str] = "Malleshwaram 8th Cross"
     account_masked: Optional[str] = "SBI •••• 4821"
 
-class DraftLetterRequest(BaseModel):
+class DraftLetterRequest(CleanModel):
     senior_name: Optional[str] = "Ajay Kumar Sharma"
     bank_name: Optional[str] = "State Bank of India"
     branch: Optional[str] = "Malleshwaram 8th Cross"

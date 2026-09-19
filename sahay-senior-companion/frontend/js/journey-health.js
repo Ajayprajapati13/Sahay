@@ -104,12 +104,12 @@ class HealthJourney {
 
           ${this.prescriptionData ? `
             <div style="margin: 16px 0;">
-              <img src="${this.prescriptionData.svg_preview}" alt="Apollo Prescription" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
+              <img src="${esc(safeImgSrc(this.prescriptionData.svg_preview))}" alt="Apollo Prescription" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-card);" />
               <div class="verified-safe-box" style="margin-top: 14px;">
                 <span>🩺</span>
                 <div>
-                  <strong>${this.prescriptionData.doctor_name} (${this.prescriptionData.clinic})</strong>
-                  <div style="font-size: 1.05rem; color: #15803D;">Consultation Date: ${this.prescriptionData.date}</div>
+                  <strong>${esc(this.prescriptionData.doctor_name)} (${esc(this.prescriptionData.clinic)})</strong>
+                  <div style="font-size: 1.05rem; color: #15803D;">Consultation Date: ${esc(this.prescriptionData.date)}</div>
                 </div>
               </div>
             </div>
@@ -122,8 +122,8 @@ class HealthJourney {
                   <li>
                     <span>💊</span>
                     <div>
-                      <strong>${m.name} (${m.dosage})</strong> &bull; <span style="color: #0D9488; font-weight: 700;">${m.when}</span>
-                      <div style="font-size: 0.95rem; color: var(--text-muted);">${m.purpose}</div>
+                      <strong>${esc(m.name)} (${esc(m.dosage)})</strong> &bull; <span style="color: #0D9488; font-weight: 700;">${esc(m.when)}</span>
+                      <div style="font-size: 0.95rem; color: var(--text-muted);">${esc(m.purpose)}</div>
                     </div>
                   </li>
                 `).join('')}
@@ -153,20 +153,20 @@ class HealthJourney {
                 <li style="display: flex; justify-content: space-between; align-items: center; background: ${rem.status === 'completed' ? '#F0FDF4' : '#FFFFFF'};">
                   <div>
                     <div style="font-size: 1.25rem; font-weight: 800; color: ${rem.status === 'completed' ? '#166534' : 'var(--text-primary)'};">
-                      ${rem.title}
+                      ${esc(rem.title)}
                     </div>
                     <div style="font-size: 1.05rem; color: var(--text-secondary); margin-top: 4px;">
-                      ${rem.detail}
+                      ${esc(rem.detail)}
                     </div>
                     <div style="font-size: 1rem; color: #0D9488; font-weight: 700; margin-top: 4px;">
-                      ⏱️ ${rem.due_time}
+                      ⏱️ ${esc(rem.due_time)}
                     </div>
                   </div>
                   <div>
                     ${rem.status === 'completed' ? `
                       <span style="font-size: 1.15rem; color: #15803D; font-weight: 800;">✔ Taken</span>
                     ` : `
-                      <button class="btn-primary" style="background: #15803D; min-height: 48px; font-size: 1.05rem; padding: 8px 16px; width: auto;" onclick="healthJourney.markTaken('${rem.id}')">
+                      <button class="btn-primary" style="background: #15803D; min-height: 48px; font-size: 1.05rem; padding: 8px 16px; width: auto;" onclick="healthJourney.markTaken(${jsArg(rem.id)})">
                         Mark Taken
                       </button>
                     `}
