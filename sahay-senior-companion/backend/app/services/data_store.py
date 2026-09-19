@@ -79,66 +79,11 @@ class DataStore:
                     "frequent": True
                 }
             ],
-            "bank_activities": [
-                {
-                    "id": "act-bank-1",
-                    "timestamp": "2026-09-19T10:45:00",
-                    "action_type": "cash_withdrawal",
-                    "bank_name": "State Bank of India",
-                    "branch": "Malleshwaram 8th Cross",
-                    "account_masked": "SBI •••• 4821",
-                    "amount": "₹10,000",
-                    "plain_text": "On September 19, 2026 at 10:45 AM, you withdrew ₹10,000 at SBI Malleshwaram for monthly household expenses. Your remaining balance is ₹34,520.",
-                    "status": "completed",
-                    "receipt_token": "SBI-MLM-4821-W10"
-                }
-            ],
-            "reminders": [
-                {
-                    "id": "rem-bp-pill",
-                    "category": "health",
-                    "title": "Morning Blood Pressure Tablet",
-                    "detail": "Take 1 Telmisartan 40mg after breakfast with a glass of water.",
-                    "due_time": "09:00 AM Daily",
-                    "status": "pending",
-                    "audio_alert": True
-                },
-                {
-                    "id": "rem-bank-visit",
-                    "category": "bank",
-                    "title": "SBI Malleshwaram Pension Visit",
-                    "detail": "Visit branch for pension verification. Carry original passbook and Aadhaar copy.",
-                    "due_time": "Today at 11:00 AM",
-                    "status": "pending",
-                    "audio_alert": True
-                }
-            ],
-            "trips": [
-                {
-                    "id": "trip-cab-101",
-                    "timestamp": "2026-09-19T10:15:00",
-                    "destination": "State Bank of India, Malleshwaram",
-                    "driver_name": "Ramesh Kumar",
-                    "driver_rating": "4.9 ★",
-                    "driver_phone": "+91 98800 44211",
-                    "vehicle_number": "KA-04-E-8821 (White Swift Dzire)",
-                    "otp": "4821",
-                    "fare": "₹140",
-                    "status": "arrived",
-                    "family_notified": True,
-                    "family_notification_text": "Ananya Sharma received driver details and arrival confirmation at 10:15 AM."
-                }
-            ],
-            "health_visits": [
-                {
-                    "id": "health-visit-1",
-                    "doctor": "Dr. V. Sharma, M.D. (Cardiology)",
-                    "clinic": "Apollo Clinic, Malleshwaram",
-                    "date": "2026-09-18",
-                    "plain_summary": "Blood pressure checked: 130/85 (Healthy and controlled). Continue morning Telmisartan without break.",
-                    "next_visit": "October 16, 2026"
-                }
-            ],
+            # A new person starts with no activity: no invented withdrawals, trips, visits or medicines.
+            "bank_activities": [],
+            "reminders": [],
+            "trips": [],
+            "health_visits": [],
             "scam_inspections": []
         }
 

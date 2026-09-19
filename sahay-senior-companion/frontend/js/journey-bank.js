@@ -20,6 +20,7 @@ class BankJourney {
     const m = String(this.accountMasked).match(/(\d{4})\D*$/);
     return m ? m[1] : "";
   }
+  get personName() { return (this.passbookData && this.passbookData.customer_name) || profile.name || ""; }
   get destination() { return [this.bankName, this.branchName].filter(Boolean).join(", "); }
 
   init() {
@@ -218,6 +219,7 @@ class BankJourney {
               action_type: "cash_withdrawal",
               amount: "₹10,000",
               resolved: true,
+              senior_name: this.personName,
               bank_name: this.bankName,
               branch: this.branchName,
               account_masked: this.accountMasked
@@ -246,6 +248,7 @@ class BankJourney {
               amount: "₹28,000",
               resolved: false,
               unresolved_reason: "Pension credit delayed beyond due date. Branch officer requested central backend verification.",
+              senior_name: this.personName,
               bank_name: this.bankName,
               branch: this.branchName,
               account_masked: this.accountMasked

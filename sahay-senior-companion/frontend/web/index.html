@@ -26,6 +26,9 @@
 
     <!-- Quick Accessibility Controls -->
     <div class="accessibility-bar" role="toolbar" aria-label="Accessibility Settings">
+      <button id="profile-btn" class="icon-btn-toggle" onclick="profile.open()" aria-haspopup="dialog" aria-label="My name and sign in">
+        <span>👤</span> Sign in
+      </button>
       <button id="contrast-toggle-btn" class="icon-btn-toggle" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
         <span>👁️</span> Contrast
       </button>
@@ -43,8 +46,8 @@
     
     <!-- Proactive Morning Greeting Banner -->
     <section class="greeting-card anim-pulse" aria-labelledby="greeting-title">
-      <h2 id="greeting-title" data-i18n="greeting_morning">Good morning, Ajay uncle!</h2>
-      <p id="greeting-sub" data-i18n="greeting_sub">You have 2 items planned today: your blood pressure tablet and your State Bank pension visit.</p>
+      <h2 id="greeting-title" data-i18n="greeting_morning">Good morning!</h2>
+      <p id="greeting-sub" data-i18n="greeting_sub">Sahay is here to help you today.</p>
       <button class="speak-greeting-btn" onclick="speakDailyGreeting()" aria-label="Read today's schedule aloud">
         <span aria-hidden="true">🔊</span> <span data-i18n="btn_listen_greeting">Read Today's Plan</span>
       </button>
@@ -196,6 +199,7 @@
   <script src="/js/safe-html.js"></script>
   <script src="/js/photo-capture.js"></script>
   <script src="/js/map-view.js"></script>
+  <script src="/js/profile.js"></script>
   <script src="/js/i18n.js"></script>
   <script src="/js/sample-data.js"></script>
   <script src="/js/voice-engine.js"></script>

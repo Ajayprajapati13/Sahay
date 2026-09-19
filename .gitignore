@@ -12,3 +12,7 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
+
+# Runtime state written by the app (never commit it)
+sahay_state.json
+sahay_state.json.tmp

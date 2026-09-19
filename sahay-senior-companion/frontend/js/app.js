@@ -35,6 +35,7 @@ async function initApp() {
   setLanguage(lang);
 
   // Load sub-modules
+  profile.load();
   bankJourney.init();
   // These requests do not depend on each other, so run them together instead of one after another.
   await Promise.all([transportJourney.init(), healthJourney.init(), familyPortal.init(), refreshDashboard()]);
@@ -105,7 +106,7 @@ async function handleSpokenCommand(text) {
 
 async function refreshDashboard() {
   try {
-    const greetingRes = await fetch(`/api/ai/daily-greeting?language=${currentLang}`);
+    const greetingRes = await fetch(`/api/ai/daily-greeting?language=${currentLang}&name=${encodeURIComponent(profile.name)}`);
     const greetingData = await greetingRes.json();
 
     const titleEl = document.getElementById("greeting-title");
@@ -269,6 +270,8 @@ function toggleLanguage() {
   setLanguage(newLang);
   voiceEngine.playChime("start");
   refreshDashboard();
+  profile.updateHeader();
+  if (profile.overlay) profile.render();
   bankJourney.render();
   transportJourney.render();
   healthJourney.render();

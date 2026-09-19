@@ -23,18 +23,19 @@ class KioskCheckinRequest(CleanModel):
 
 class BankCompleteRequest(CleanModel):
     action_type: str # "cash_withdrawal", "pension_inquiry", "kyc_update"
-    amount: Optional[str] = "₹10,000"
+    amount: Optional[str] = ""
     resolved: bool = True
     unresolved_reason: Optional[str] = ""
-    bank_name: Optional[str] = "State Bank of India"
-    branch: Optional[str] = "Malleshwaram 8th Cross"
-    account_masked: Optional[str] = "SBI •••• 4821"
+    senior_name: Optional[str] = ""
+    bank_name: Optional[str] = ""
+    branch: Optional[str] = ""
+    account_masked: Optional[str] = ""
 
 class DraftLetterRequest(CleanModel):
-    senior_name: Optional[str] = "Ajay Kumar Sharma"
-    bank_name: Optional[str] = "State Bank of India"
-    branch: Optional[str] = "Malleshwaram 8th Cross"
-    account_masked: Optional[str] = "SBI •••• 4821"
+    senior_name: Optional[str] = ""
+    bank_name: Optional[str] = ""
+    branch: Optional[str] = ""
+    account_masked: Optional[str] = ""
     issue_description: str
     visit_date: Optional[str] = "September 19, 2026"
 
@@ -151,12 +152,12 @@ async def complete_bank_action(req: BankCompleteRequest, request: Request):
         }
     else:
         # Unresolved: generate formal letter and set reminder
-        reason = req.unresolved_reason or "Pension not credited for September 2026 due to backend verification delay"
+        reason = req.unresolved_reason or "My matter was not resolved during my visit to the branch"
         drafted_letter = await gemini_service.draft_bank_letter(
-            senior_name="Ajay Kumar Sharma",
-            bank_name=req.bank_name or "State Bank of India",
-            branch=req.branch or "Malleshwaram 8th Cross",
-            account_masked=req.account_masked or "SBI •••• 4821",
+            senior_name=req.senior_name or "Account Holder",
+            bank_name=req.bank_name or "the Bank",
+            branch=req.branch or "the Branch",
+            account_masked=req.account_masked or "on record",
             issue_description=reason
         )
 
@@ -195,10 +196,10 @@ async def complete_bank_action(req: BankCompleteRequest, request: Request):
 async def draft_letter(req: DraftLetterRequest):
     """Generates formal letter on demand for any bank dispute or grievance."""
     letter = await gemini_service.draft_bank_letter(
-        senior_name=req.senior_name or "Ajay Kumar Sharma",
-        bank_name=req.bank_name or "State Bank of India",
-        branch=req.branch or "Malleshwaram 8th Cross",
-        account_masked=req.account_masked or "SBI •••• 4821",
+        senior_name=req.senior_name or "Account Holder",
+        bank_name=req.bank_name or "the Bank",
+        branch=req.branch or "the Branch",
+        account_masked=req.account_masked or "on record",
         issue_description=req.issue_description,
         visit_date=req.visit_date or "September 19, 2026"
     )

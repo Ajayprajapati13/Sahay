@@ -1,10 +1,11 @@
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ..services.data_store import data_store
 from ..services.gemini_service import gemini_service
+from ..utils.security import clean_text
 
 router = APIRouter(prefix="/ai", tags=["Conversational AI & Intent Routing"])
 
@@ -29,18 +30,21 @@ async def parse_voice_intent(req: VoiceIntentRequest):
     }
 
 @router.get("/daily-greeting")
-async def get_daily_greeting(language: str = "en"):
-    """Generates a warm, gentle morning check-in voice greeting based on pending items."""
+async def get_daily_greeting(language: str = "en", name: str = Query("", max_length=60)):
+    """A warm greeting for the person by name, listing only the things they really have pending."""
     summary = data_store.get_tracking_summary()
     pending = summary.get("pending_reminders", [])
-    senior_name = summary.get("senior_name", "Ajay uncle")
+    who = clean_text(name, 60)
+    titles = [clean_text(r.get("title", ""), 80) for r in pending[:3] if r.get("title")]
 
     if language == "hi":
-        spoken = f"नमस्ते {senior_name} जी! आज आपके पास {len(pending)} ज़रूरी काम हैं। सुबह की बीपी की गोली ले लें, और बैंक जाने की तैयारी पूरी है।"
-        headline = "सुप्रभात! आज का दिन शांत और सुरक्षित रहे।"
+        headline = f"सुप्रभात, {who}!" if who else "सुप्रभात!"
+        plan = f"आज आपके काम: {', '.join(titles)}।" if titles else "आज आपके लिए कोई काम तय नहीं है।"
+        spoken = f"नमस्ते {who} जी! {plan}" if who else f"नमस्ते! {plan}"
     else:
-        spoken = f"Good morning {senior_name}! You have {len(pending)} items to look at today: your morning blood pressure medicine, and your State Bank visit planned for 11:00 AM. I am here with you every step of the way."
-        headline = f"Good morning, {senior_name}! Here is your peaceful day ahead."
+        headline = f"Good morning, {who}!" if who else "Good morning!"
+        plan = f"Today you have: {', '.join(titles)}." if titles else "You have nothing planned today."
+        spoken = f"Good morning {who}! {plan}" if who else f"Good morning! {plan}"
 
     return {
         "headline": headline,

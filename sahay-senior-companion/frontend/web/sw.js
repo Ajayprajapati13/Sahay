@@ -1,5 +1,5 @@
 // Sahay Service Worker - caching core assets for offline reliability
-const CACHE_NAME = "sahay-cache-v5";
+const CACHE_NAME = "sahay-cache-v6";
 const ASSETS = [
   "/",
   "/css/sahay-theme.css",
@@ -7,6 +7,7 @@ const ASSETS = [
   "/js/safe-html.js",
   "/js/photo-capture.js",
   "/js/map-view.js",
+  "/js/profile.js",
   "/js/i18n.js",
   "/js/sample-data.js",
   "/js/voice-engine.js",

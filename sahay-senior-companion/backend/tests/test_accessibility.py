@@ -29,6 +29,11 @@ def test_rate_limiter():
     assert wait_time > 0
 
 def test_family_portal_privacy_guard():
+    # The app starts empty, so the test creates the bank event it is protecting
+    data_store.add_bank_activity({
+        "action_type": "cash_withdrawal", "bank_name": "Test Bank", "branch": "Test Branch",
+        "account_masked": "•••• 1234", "amount": "₹500", "plain_text": "You withdrew ₹500.", "status": "completed",
+    })
     # When share_bank is False, family view MUST NOT contain any bank events
     data_store.update_family_permissions(share_trips=True, share_health=True, share_bank=False)
     family_view = data_store.get_family_view()

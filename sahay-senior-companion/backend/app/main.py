@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .routes.ai_router import router as ai_router
+from .routes.auth_router import router as auth_router
 from .routes.bank_router import router as bank_router
 from .routes.family_router import router as family_router
 from .routes.health_router import router as health_router
@@ -65,6 +66,7 @@ app.add_middleware(GZipMiddleware, minimum_size=800)
 
 # API Routers
 app.include_router(ai_router, prefix=settings.api_prefix)
+app.include_router(auth_router, prefix=settings.api_prefix)
 app.include_router(ocr_router, prefix=settings.api_prefix)
 app.include_router(scam_router, prefix=settings.api_prefix)
 app.include_router(bank_router, prefix=settings.api_prefix)
