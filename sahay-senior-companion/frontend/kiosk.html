@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SBI Malleshwaram - Senior Citizen Self-Service Kiosk</title>
+  <link rel="stylesheet" href="/css/sahay-theme.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <style>
+    body {
+      background: #0F172A;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    .kiosk-container {
+      max-width: 800px;
+      width: 100%;
+      background: #1E293B;
+      border: 4px solid #3B82F6;
+      border-radius: 28px;
+      padding: 40px 36px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .kiosk-badge {
+      display: inline-block;
+      background: #1D4ED8;
+      color: #FFFFFF;
+      font-size: 1.2rem;
+      font-weight: 800;
+      padding: 8px 24px;
+      border-radius: 30px;
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+    }
+    .kiosk-token-box {
+      background: #0F172A;
+      border: 3px solid #60A5FA;
+      border-radius: 24px;
+      padding: 28px;
+      margin: 28px 0;
+    }
+    .kiosk-token-num {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: #93C5FD;
+      letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="kiosk-container anim-pulse">
+    <div class="kiosk-badge">STATE BANK OF INDIA &bull; MALLESHWARAM BRANCH</div>
+    <h1 style="font-size: 2.2rem; margin-bottom: 8px;">Senior Citizen Priority Welcome Kiosk</h1>
+    <p style="font-size: 1.25rem; color: #94A3B8; margin-bottom: 24px;">
+      Welcome, Mr. Ajay Kumar Sharma! Your arrival has been recognized.
+    </p>
+
+    <div class="kiosk-token-box">
+      <div style="font-size: 1.2rem; color: #94A3B8; text-transform: uppercase;">Your Senior Citizen Priority Token</div>
+      <div class="kiosk-token-num">C-42</div>
+      <div style="font-size: 1.4rem; color: #34D399; font-weight: 700; margin-top: 10px;">
+        Now Serving: Token C-38 &bull; 4 People Ahead
+      </div>
+      <div style="font-size: 1.2rem; color: #FCD34D; margin-top: 6px;">
+        ⏱️ Estimated Wait Time: ~10 Minutes
+      </div>
+    </div>
+
+    <div style="background: #334155; border-radius: 18px; padding: 22px; text-align: left; margin-bottom: 28px;">
+      <h3 style="color: #60A5FA; font-size: 1.4rem; margin-bottom: 12px;">Visit Context Verified:</h3>
+      <div style="font-size: 1.2rem; line-height: 1.7;">
+        <div>👤 <strong>Account:</strong> SBI •••• 4821 (Pension Account)</div>
+        <div>📋 <strong>Purpose:</strong> Pension Enquiry &amp; ₹10,000 Cash Withdrawal</div>
+        <div>📍 <strong>Assigned Counter:</strong> Counter 3 (Mr. Satish Narayanan)</div>
+        <div>🪑 <strong>Recommended Seating:</strong> Green ergonomic chairs next to Counter 3</div>
+      </div>
+    </div>
+
+    <div class="btn-grid-row">
+      <button class="btn-primary" style="font-size: 1.3rem;" onclick="window.location.href='/'">
+        <span>📱</span> Return to Mobile Companion App
+      </button>
+      <button class="btn-secondary" style="border-color: #64748B; color: #FFFFFF;" onclick="alert('Priority Token Slip Printed.')">
+        <span>🖨️</span> Print Paper Token Slip
+      </button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+{
+  "profile": {
+    "name": "Ajay Kumar Sharma",
+    "age": 72,
+    "preferred_language": "en",
+    "emergency_contact": {
+      "name": "Ananya Sharma (Daughter)",
+      "relation": "Daughter",
+      "phone": "+91 98450 12345",
+      "email": "ananya.sharma@example.com"
+    }
+  },
+  "family_permissions": {
+    "share_trips": true,
+    "share_health": true,
+    "share_bank": false,
+    "last_updated": "2026-09-19T11:10:15"
+  },
+  "saved_places": [
+    {
+      "id": "place-sbi",
+      "label": "State Bank of India (SBI)",
+      "category": "bank",
+      "address": "Malleshwaram 8th Cross, Margosa Road, Bengaluru",
+      "landmark": "Near Margosa Post Office, Opposite Old Banyan Tree",
+      "frequent": true
+    },
+    {
+      "id": "place-doctor",
+      "label": "Dr. Sharma's Cardiology Clinic",
+      "category": "health",
+      "address": "Apollo Clinic, 14th Cross, Malleshwaram",
+      "landmark": "Near Canara Union, 2nd Floor with elevator",
+      "frequent": true
+    },
+    {
+      "id": "place-temple",
+      "label": "Ganesh Temple",
+      "category": "spiritual",
+      "address": "Temple Street, Malleshwaram",
+      "landmark": "Opposite the heritage flower market",
+      "frequent": true
+    },
+    {
+      "id": "place-daughter",
+      "label": "Ananya's House (Daughter)",
+      "category": "family",
+      "address": "42, Palm Grove, Indiranagar, Bengaluru",
+      "landmark": "Behind Defence Colony Club",
+      "frequent": true
+    },
+    {
+      "id": "place-chemist",
+      "label": "Apollo Pharmacy",
+      "category": "pharmacy",
+      "address": "11th Cross, Sampige Road, Malleshwaram",
+      "landmark": "Next to Nilgiris Supermarket",
+      "frequent": true
+    }
+  ],
+  "bank_activities": [
+    {
+      "action_type": "pension_inquiry",
+      "bank_name": "State Bank of India",
+      "branch": "Malleshwaram 8th Cross",
+      "account_masked": "SBI •••• 4821",
+      "amount": "₹28,000",
+      "plain_text": "Your branch visit on September 19 is recorded as unresolved: 'Pension credit delayed beyond due date. Branch officer requested verification.'. A formal follow-up letter to the Branch Manager has been drafted, and a reminder is set for Tuesday morning.",
+      "status": "follow_up_scheduled",
+      "drafted_letter": "To,\nThe Branch Manager,\nState Bank of India, Malleshwaram 8th Cross\n\nDate: September 19, 2026\nSubject: Urgent Follow-Up: Resolution Request for Pension Account (SBI •••• 4821)\n\nDear Sir / Madam,\n\nI am a senior citizen customer holding Savings Pension Account No. SBI •••• 4821 at your respected branch.\n\nI personally visited your branch on September 19, 2026 regarding the following matter:\n\"Pension credit delayed beyond due date. Branch officer requested verification.\"\n\nDuring my visit, the counter officer kindly noted my request, but the issue could not be finalized on the same day. As I rely entirely on my monthly pension for my living and essential medical expenses, this delay is causing severe difficulty.\n\nI respectfully request you to kindly intervene and expedite the verification and crediting of my funds at the earliest.\n\nPlease find my contact details on record. I look forward to your confirmation.\n\nThanking you warmly,\nYours faithfully,\n\nAjay Kumar Sharma\n(Senior Citizen Account Holder)\nPhone: Registered Mobile on Record\n",
+      "reminder_id": "rem-1789796415",
+      "id": "act-bank-1789796415",
+      "timestamp": "2026-09-19T11:10:15"
+    },
+    {
+      "action_type": "cash_withdrawal",
+      "bank_name": "State Bank of India",
+      "branch": "Malleshwaram 8th Cross",
+      "account_masked": "SBI •••• 4821",
+      "amount": "₹10,000",
+      "plain_text": "On September 19, 2026, you successfully completed your cash withdrawal of ₹10,000 at State Bank of India, Malleshwaram 8th Cross. Your transaction slip is safely recorded.",
+      "status": "completed",
+      "id": "act-bank-1789796415",
+      "timestamp": "2026-09-19T11:10:15"
+    },
+    {
+      "action_type": "pension_inquiry",
+      "bank_name": "State Bank of India",
+      "branch": "Malleshwaram 8th Cross",
+      "account_masked": "SBI •••• 4821",
+      "amount": "₹28,000",
+      "plain_text": "Your branch visit on September 19 is recorded as unresolved: 'Pension credit delayed beyond due date. Branch officer requested verification.'. A formal follow-up letter to the Branch Manager has been drafted, and a reminder is set for Tuesday morning.",
+      "status": "follow_up_scheduled",
+      "drafted_letter": "To,\nThe Branch Manager,\nState Bank of India, Malleshwaram 8th Cross\n\nDate: September 19, 2026\nSubject: Urgent Follow-Up: Resolution Request for Pension Account (SBI •••• 4821)\n\nDear Sir / Madam,\n\nI am a senior citizen customer holding Savings Pension Account No. SBI •••• 4821 at your respected branch.\n\nI personally visited your branch on September 19, 2026 regarding the following matter:\n\"Pension credit delayed beyond due date. Branch officer requested verification.\"\n\nDuring my visit, the counter officer kindly noted my request, but the issue could not be finalized on the same day. As I rely entirely on my monthly pension for my living and essential medical expenses, this delay is causing severe difficulty.\n\nI respectfully request you to kindly intervene and expedite the verification and crediting of my funds at the earliest.\n\nPlease find my contact details on record. I look forward to your confirmation.\n\nThanking you warmly,\nYours faithfully,\n\nAjay Kumar Sharma\n(Senior Citizen Account Holder)\nPhone: Registered Mobile on Record\n",
+      "reminder_id": "rem-1789796388",
+      "id": "act-bank-1789796388",
+      "timestamp": "2026-09-19T11:09:48"
+    },
+    {
+      "action_type": "cash_withdrawal",
+      "bank_name": "State Bank of India",
+      "branch": "Malleshwaram 8th Cross",
+      "account_masked": "SBI •••• 4821",
+      "amount": "₹10,000",
+      "plain_text": "On September 19, 2026, you successfully completed your cash withdrawal of ₹10,000 at State Bank of India, Malleshwaram 8th Cross. Your transaction slip is safely recorded.",
+      "status": "completed",
+      "id": "act-bank-1789796388",
+      "timestamp": "2026-09-19T11:09:48"
+    },
+    {
+      "id": "act-bank-1",
+      "timestamp": "2026-09-19T10:45:00",
+      "action_type": "cash_withdrawal",
+      "bank_name": "State Bank of India",
+      "branch": "Malleshwaram 8th Cross",
+      "account_masked": "SBI •••• 4821",
+      "amount": "₹10,000",
+      "plain_text": "On September 19, 2026 at 10:45 AM, you withdrew ₹10,000 at SBI Malleshwaram for monthly household expenses. Your remaining balance is ₹34,520.",
+      "status": "completed",
+      "receipt_token": "SBI-MLM-4821-W10"
+    }
+  ],
+  "reminders": [
+    {
+      "category": "bank",
+      "title": "Follow up with SBI Branch Manager",
+      "detail": "Check status of pension credit enquiry (Letter ref: Pension credit delayed beyond due date. ).",
+      "due_time": "In 3 Days (Tuesday, Sept 22, 11:00 AM)",
+      "status": "pending",
+      "audio_alert": true,
+      "id": "rem-1789796415"
+    },
+    {
+      "category": "bank",
+      "title": "Follow up with SBI Branch Manager",
+      "detail": "Check status of pension credit enquiry (Letter ref: Pension credit delayed beyond due date. ).",
+      "due_time": "In 3 Days (Tuesday, Sept 22, 11:00 AM)",
+      "status": "pending",
+      "audio_alert": true,
+      "id": "rem-1789796388"
+    },
+    {
+      "id": "rem-bp-pill",
+      "category": "health",
+      "title": "Morning Blood Pressure Tablet",
+      "detail": "Take 1 Telmisartan 40mg after breakfast with a glass of water.",
+      "due_time": "09:00 AM Daily",
+      "status": "pending",
+      "audio_alert": true
+    },
+    {
+      "id": "rem-bank-visit",
+      "category": "bank",
+      "title": "SBI Malleshwaram Pension Visit",
+      "detail": "Visit branch for pension verification. Carry original passbook and Aadhaar copy.",
+      "due_time": "Today at 11:00 AM",
+      "status": "pending",
+      "audio_alert": true
+    }
+  ],
+  "trips": [
+    {
+      "destination": "Dr. Sharma&#x27;s Clinic",
+      "pickup": "Home (Margosa Road)",
+      "fare": "₹140",
+      "driver_name": "Ramesh Kumar",
+      "vehicle_number": "KA-04-E-8821",
+      "vehicle_model": "White Maruti Swift Dzire",
+      "otp": "4821",
+      "status": "driver_assigned",
+      "family_notified": true,
+      "family_notification_text": "Driver Ramesh Kumar's details and live vehicle tracking (KA-04-E-8821) have been sent to your daughter Ananya.",
+      "id": "trip-1789797419",
+      "timestamp": "2026-09-19T11:26:59"
+    },
+    {
+      "destination": "Dr. Sharma&#x27;s Clinic",
+      "pickup": "Home (Margosa Road)",
+      "fare": "₹140",
+      "driver_name": "Ramesh Kumar",
+      "vehicle_number": "KA-04-E-8821",
+      "vehicle_model": "White Maruti Swift Dzire",
+      "otp": "4821",
+      "status": "driver_assigned",
+      "family_notified": true,
+      "family_notification_text": "Driver Ramesh Kumar's details and live vehicle tracking (KA-04-E-8821) have been sent to your daughter Ananya.",
+      "id": "trip-1789797351",
+      "timestamp": "2026-09-19T11:25:51"
+    },
+    {
+      "id": "trip-cab-101",
+      "timestamp": "2026-09-19T10:15:00",
+      "destination": "State Bank of India, Malleshwaram",
+      "driver_name": "Ramesh Kumar",
+      "driver_rating": "4.9 ★",
+      "driver_phone": "+91 98800 44211",
+      "vehicle_number": "KA-04-E-8821 (White Swift Dzire)",
+      "otp": "4821",
+      "fare": "₹140",
+      "status": "arrived",
+      "family_notified": true,
+      "family_notification_text": "Ananya Sharma received driver details and arrival confirmation at 10:15 AM."
+    }
+  ],
+  "health_visits": [
+    {
+      "id": "health-visit-1",
+      "doctor": "Dr. V. Sharma, M.D. (Cardiology)",
+      "clinic": "Apollo Clinic, Malleshwaram",
+      "date": "2026-09-18",
+      "plain_summary": "Blood pressure checked: 130/85 (Healthy and controlled). Continue morning Telmisartan without break.",
+      "next_visit": "October 16, 2026"
+    }
+  ],
+  "scam_inspections": [
+    {
+      "source": "background_scan",
+      "is_scam": false,
+      "threat_level": "SAFE",
+      "scam_type": "Genuine Notice / Safe Document",
+      "headline": "✅ Verified Safe Document",
+      "snippet": "SBI Savings Bank Passbook Account •••• 4821 Malleshwaram",
+      "id": "scam-1789797403",
+      "timestamp": "2026-09-19T11:26:43"
+    },
+    {
+      "source": "sample_electricity",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Dear Consumer, your electricity power will be disconnected tonight at 9:30 PM from power office beca",
+      "id": "scam-1789797371",
+      "timestamp": "2026-09-19T11:26:11"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Dear Consumer your power will be cut tonight at 9:30 PM call 9876543210",
+      "id": "scam-1789796615",
+      "timestamp": "2026-09-19T11:13:35"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": false,
+      "threat_level": "SAFE",
+      "scam_type": "Genuine Notice / Safe Document",
+      "headline": "✅ Verified Safe Document",
+      "snippet": "State Bank of India: Your account has been credited with ₹10,000 on 19-Sep. Available balance is ₹34",
+      "id": "scam-1789796415",
+      "timestamp": "2026-09-19T11:10:15"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Urgent: Your pension credit is withheld. Click http://fake-pension.in/app and install PensionUpdate.",
+      "id": "scam-1789796415",
+      "timestamp": "2026-09-19T11:10:15"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Dear Consumer, your electricity power will be disconnected tonight at 9:30 PM from power office. Cal",
+      "id": "scam-1789796415",
+      "timestamp": "2026-09-19T11:10:15"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": false,
+      "threat_level": "SAFE",
+      "scam_type": "Genuine Notice / Safe Document",
+      "headline": "✅ Verified Safe Document",
+      "snippet": "State Bank of India: Your account has been credited with ₹10,000 on 19-Sep. Available balance is ₹34",
+      "id": "scam-1789796389",
+      "timestamp": "2026-09-19T11:09:49"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Urgent: Your pension credit is withheld. Click http://fake-pension.in/app and install PensionUpdate.",
+      "id": "scam-1789796389",
+      "timestamp": "2026-09-19T11:09:49"
+    },
+    {
+      "source": "forwarded_message",
+      "is_scam": true,
+      "threat_level": "CRITICAL",
+      "scam_type": "Fake Utility Disconnection / Urgent Phishing",
+      "headline": "🚨 Fake Alert: Do Not Pay or Click Anything!",
+      "snippet": "Dear Consumer, your electricity power will be disconnected tonight at 9:30 PM from power office. Cal",
+      "id": "scam-1789796389",
+      "timestamp": "2026-09-19T11:09:49"
+    }
+  ]
+}

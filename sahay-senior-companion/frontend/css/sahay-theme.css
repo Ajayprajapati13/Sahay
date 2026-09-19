@@ -1,0 +1,695 @@
+/* ==========================================================================
+   SAHAY - SENIOR-FIRST ACCESSIBILITY DESIGN SYSTEM (WCAG 2.1 AA+)
+   ========================================================================== */
+
+:root {
+  --font-base: 20px;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* Standard Soothing Senior Theme */
+  --bg-primary: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --bg-modal: rgba(15, 23, 42, 0.75);
+  
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  
+  --brand-primary: #1E3A8A; /* Deep dignified navy */
+  --brand-primary-hover: #172554;
+  --brand-secondary: #0D9488; /* Serene healing teal */
+  --brand-accent: #D97706; /* Warm amber */
+  
+  --status-safe: #15803D; /* Deep calm green */
+  --status-safe-bg: #DCFCE7;
+  --status-warn: #B45309; /* High-visibility warning amber */
+  --status-warn-bg: #FEF3C7;
+  --status-danger: #B91C1C; /* High contrast red */
+  --status-danger-bg: #FEE2E2;
+  
+  --border-card: #CBD5E1;
+  --border-focus: #2563EB;
+  --radius-btn: 16px;
+  --radius-card: 20px;
+  --shadow-card: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-floating: 0 10px 25px -3px rgba(15, 23, 42, 0.15);
+}
+
+/* High Contrast AAA Mode */
+body.high-contrast {
+  --bg-primary: #000000;
+  --bg-card: #121212;
+  --bg-card-hover: #222222;
+  --bg-modal: rgba(0, 0, 0, 0.9);
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #F8FAFC;
+  --text-muted: #E2E8F0;
+  
+  --brand-primary: #FACC15; /* High-vis yellow on dark */
+  --brand-primary-hover: #EAB308;
+  --brand-secondary: #38BDF8;
+  --brand-accent: #F97316;
+  
+  --status-safe: #4ADE80;
+  --status-safe-bg: #052E16;
+  --status-warn: #FDE047;
+  --status-warn-bg: #422006;
+  --status-danger: #F87171;
+  --status-danger-bg: #450A0A;
+  
+  --border-card: #FFFFFF;
+  --border-focus: #FACC15;
+}
+
+/* Text Size Scaling */
+body.text-size-large {
+  --font-base: 24px;
+}
+body.text-size-xl {
+  --font-base: 28px;
+}
+
+/* Base Document Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: var(--font-base);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.55;
+  min-height: 100vh;
+  padding-bottom: 120px; /* Generous space for persistent floating voice bar */
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Accessible Skip Link */
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 20px;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  padding: 14px 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: var(--radius-btn);
+  z-index: 9999;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 15px;
+  outline: 4px solid var(--border-focus);
+}
+
+/* App Header */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 3px solid var(--border-card);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-card);
+}
+
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+body.high-contrast .brand-logo {
+  background: var(--brand-primary);
+  color: #000000;
+}
+
+.brand-titles h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.brand-titles p {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Accessibility Control Bar */
+.accessibility-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-btn-toggle {
+  min-height: 52px;
+  min-width: 52px;
+  padding: 8px 16px;
+  border-radius: 14px;
+  border: 2px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.icon-btn-toggle:focus-visible {
+  outline: 4px solid var(--border-focus);
+}
+.icon-btn-toggle:active {
+  transform: scale(0.96);
+}
+
+/* Main Content Container */
+.main-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* Senior Status & Greeting Banner */
+.greeting-card {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, #1e40af 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+body.high-contrast .greeting-card {
+  background: #18181B;
+  border: 3px solid #FFFFFF;
+  color: #FFFFFF;
+}
+
+.greeting-card h2 {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.greeting-card p {
+  font-size: 1.15rem;
+  font-weight: 500;
+  opacity: 0.95;
+  margin-bottom: 18px;
+}
+
+.speak-greeting-btn {
+  background: #FFFFFF;
+  color: var(--brand-primary);
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 12px 22px;
+  border-radius: var(--radius-btn);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-height: 56px;
+}
+body.high-contrast .speak-greeting-btn {
+  background: var(--brand-primary);
+  color: #000000;
+}
+
+/* Primary Navigation Tabs */
+.nav-tab-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+  list-style: none;
+}
+
+.nav-tab-btn {
+  min-height: 60px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-btn);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+.nav-tab-btn.active {
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  border-color: var(--brand-primary);
+  box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);
+}
+body.high-contrast .nav-tab-btn.active {
+  background: var(--brand-primary);
+  color: #000000;
+  border-color: #FFFFFF;
+}
+.nav-tab-btn:focus-visible {
+  outline: 4px solid var(--border-focus);
+}
+
+/* Unified Section Cards */
+.section-panel {
+  display: none;
+}
+.section-panel.active {
+  display: block;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.senior-card {
+  background: var(--bg-card);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.senior-card h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Touch-Optimized Primary and Secondary Action Buttons */
+.btn-primary {
+  min-height: 62px;
+  padding: 16px 28px;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  font-weight: 800;
+  border: none;
+  border-radius: var(--radius-btn);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.25);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.btn-primary:hover {
+  background: var(--brand-primary-hover);
+}
+.btn-primary:active {
+  transform: scale(0.98);
+}
+.btn-primary:focus-visible {
+  outline: 4px solid var(--border-focus);
+}
+body.high-contrast .btn-primary {
+  background: var(--brand-primary);
+  color: #000000;
+  border: 2px solid #FFFFFF;
+}
+
+.btn-secondary {
+  min-height: 60px;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-btn);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+}
+.btn-secondary:focus-visible {
+  outline: 4px solid var(--border-focus);
+}
+
+.btn-danger {
+  min-height: 60px;
+  padding: 14px 24px;
+  background: var(--status-danger);
+  color: #FFFFFF;
+  font-size: 1.15rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-btn);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Button Grid Row */
+.btn-grid-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+/* Three-Phase Stepper Tracker (Prepare -> Assist -> Follow Up) */
+.stepper-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  background: var(--bg-card-hover);
+  padding: 14px 20px;
+  border-radius: var(--radius-btn);
+  border: 2px solid var(--border-card);
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.step-indicator.active {
+  color: var(--brand-primary);
+}
+body.high-contrast .step-indicator.active {
+  color: var(--brand-primary);
+}
+.step-indicator .step-num {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+.step-indicator.active .step-num {
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  border-color: var(--brand-primary);
+}
+body.high-contrast .step-indicator.active .step-num {
+  background: var(--brand-primary);
+  color: #000000;
+}
+
+/* Checklists & Itemized Views */
+.plain-checklist {
+  list-style: none;
+  margin: 18px 0;
+}
+.plain-checklist li {
+  background: var(--bg-card-hover);
+  border: 2px solid var(--border-card);
+  border-radius: var(--radius-btn);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.plain-checklist li .icon-check {
+  font-size: 1.4rem;
+  color: var(--status-safe);
+}
+
+/* Giant Digits Display (OTP, Token Numbers) */
+.giant-number-badge {
+  background: #EFF6FF;
+  border: 3px solid #3B82F6;
+  border-radius: var(--radius-card);
+  padding: 24px;
+  text-align: center;
+  margin: 20px 0;
+}
+body.high-contrast .giant-number-badge {
+  background: #000000;
+  border: 3px solid #FACC15;
+}
+.giant-number-badge .label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.giant-number-badge .number {
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--brand-primary);
+  letter-spacing: 0.15em;
+  margin: 6px 0;
+}
+body.high-contrast .giant-number-badge .number {
+  color: #FACC15;
+}
+
+/* Scam Alert Banners */
+.scam-alert-box {
+  background: var(--status-danger-bg);
+  border: 3px solid var(--status-danger);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  margin: 20px 0;
+  color: var(--status-danger);
+}
+.scam-alert-box h4 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.scam-alert-box ul {
+  list-style-position: inside;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 14px 0;
+}
+.scam-alert-box .safe-action {
+  background: #FFFFFF;
+  border: 2px solid var(--status-danger);
+  border-radius: var(--radius-btn);
+  padding: 16px;
+  margin-top: 14px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+body.high-contrast .scam-alert-box .safe-action {
+  background: #000000;
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+/* Verified Safe Document Banner */
+.verified-safe-box {
+  background: var(--status-safe-bg);
+  border: 3px solid var(--status-safe);
+  border-radius: var(--radius-card);
+  padding: 20px 24px;
+  margin: 18px 0;
+  color: var(--status-safe);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Floating Voice Bar (Voice-First Engine) */
+.voice-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 3px solid var(--border-card);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 500;
+  box-shadow: var(--shadow-floating);
+}
+
+.giant-mic-btn {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  border: none;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(30, 58, 138, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.giant-mic-btn:focus-visible {
+  outline: 5px solid var(--border-focus);
+}
+.giant-mic-btn.listening {
+  background: #DC2626;
+  box-shadow: 0 0 0 12px rgba(220, 38, 38, 0.25);
+  animation: pulse-ring 1.5s infinite;
+}
+body.high-contrast .giant-mic-btn {
+  background: var(--brand-primary);
+  color: #000000;
+  border: 3px solid #FFFFFF;
+}
+
+.voice-prompt-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: left;
+}
+.voice-sub-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Confirmation Modal (Irreversible Action Protection) */
+.confirmation-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.confirmation-card {
+  background: var(--bg-card);
+  border: 3px solid var(--brand-primary);
+  border-radius: 24px;
+  max-width: 600px;
+  width: 100%;
+  padding: 32px 28px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.confirmation-card .readback-badge {
+  background: #EFF6FF;
+  color: var(--brand-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.confirmation-card h3 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+.confirmation-card .readback-message {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  background: var(--bg-card-hover);
+  padding: 20px;
+  border-radius: var(--radius-btn);
+  margin-bottom: 24px;
+  border: 2px solid var(--border-card);
+}
+
+/* Quick Voice Simulation / Demo Chips */
+.demo-voice-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+.demo-chip {
+  padding: 10px 16px;
+  background: var(--bg-card-hover);
+  border: 2px solid var(--border-card);
+  border-radius: 30px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.demo-chip:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}

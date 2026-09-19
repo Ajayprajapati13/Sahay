@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="description" content="Sahay - A gentle, accessible GenAI daily companion for senior citizens.">
+  <title>Sahay - GenAI Daily Companion for Senior Citizens</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/sahay-theme.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+  <!-- Accessible Skip Link -->
+  <a href="#main-content-area" class="skip-link">Skip to Main Content</a>
+
+  <!-- Senior-Friendly App Header -->
+  <header class="app-header" role="banner">
+    <div class="brand-area">
+      <div class="brand-logo" aria-hidden="true">स</div>
+      <div class="brand-titles">
+        <h1 data-i18n="app_title">Sahay</h1>
+        <p data-i18n="tagline">Your Caring Companion for Independence &amp; Peace of Mind</p>
+      </div>
+    </div>
+
+    <!-- Quick Accessibility Controls -->
+    <div class="accessibility-bar" role="toolbar" aria-label="Accessibility Settings">
+      <button id="contrast-toggle-btn" class="icon-btn-toggle" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Mode">
+        <span>👁️</span> Contrast
+      </button>
+      <button id="size-toggle-btn" class="icon-btn-toggle" onclick="cycleTextSize()" aria-label="Change Text Size">
+        <span>🔤</span> Font +
+      </button>
+      <button id="lang-toggle-btn" class="icon-btn-toggle" onclick="toggleLanguage()" aria-label="Switch Language between English and Hindi">
+        हिन्दी (HI)
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Senior Content Area -->
+  <main id="main-content-area" class="main-content" role="main">
+    
+    <!-- Proactive Morning Greeting Banner -->
+    <section class="greeting-card anim-pulse" aria-labelledby="greeting-title">
+      <h2 id="greeting-title" data-i18n="greeting_morning">Good morning, Ajay uncle!</h2>
+      <p id="greeting-sub" data-i18n="greeting_sub">You have 2 items planned today: your blood pressure tablet and your State Bank pension visit.</p>
+      <button class="speak-greeting-btn" onclick="speakDailyGreeting()" aria-label="Read today's schedule aloud">
+        <span aria-hidden="true">🔊</span> <span data-i18n="btn_listen_greeting">Read Today's Plan</span>
+      </button>
+    </section>
+
+    <!-- Quick Demo / Voice Simulation Chips -->
+    <div style="background: var(--bg-card); border: 2px solid var(--border-card); border-radius: var(--radius-btn); padding: 14px 18px; margin-bottom: 24px;">
+      <span style="font-size: 1.05rem; font-weight: 700; color: var(--text-muted);">Quick Voice Prompts (Tap to Speak):</span>
+      <div class="demo-voice-chips">
+        <button class="demo-chip" onclick="handleSpokenCommand('Check my pension status at SBI')">
+          🏦 "Check pension at SBI"
+        </button>
+        <button class="demo-chip" onclick="handleSpokenCommand('I need to withdraw cash from bank')">
+          💵 "Withdraw ₹10,000 cash"
+        </button>
+        <button class="demo-chip" onclick="handleSpokenCommand('Book cab to Dr Sharma clinic')">
+          🚗 "Book cab to Dr. Sharma"
+        </button>
+        <button class="demo-chip" onclick="handleSpokenCommand('Order what I got last month from chemist')">
+          💊 "Reorder monthly medicines"
+        </button>
+        <button class="demo-chip" onclick="handleSpokenCommand('Check this urgent electricity cut message')">
+          🚨 "Check electricity SMS"
+        </button>
+      </div>
+    </div>
+
+    <!-- Primary Navigation Tabs -->
+    <nav aria-label="Primary Navigation">
+      <ul class="nav-tab-list" role="tablist">
+        <li>
+          <button class="nav-tab-btn active" data-tab="dashboard" role="tab" aria-selected="true">
+            <span data-i18n="tab_dashboard">🏠 Things I'm Tracking</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="bank" role="tab" aria-selected="false">
+            <span data-i18n="tab_bank">🏦 Bank Visit</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="transport" role="tab" aria-selected="false">
+            <span data-i18n="tab_transport">🚗 Rides &amp; Errands</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="health" role="tab" aria-selected="false">
+            <span data-i18n="tab_health">💊 Health &amp; Doctor</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="scam" role="tab" aria-selected="false">
+            <span data-i18n="tab_scam">🛡️ Safety &amp; Scams</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="family" role="tab" aria-selected="false">
+            <span data-i18n="tab_family">👨‍👩‍👧 Family Portal</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Tab Panels -->
+
+    <!-- PANEL 1: Unified "Things I'm Tracking" Dashboard -->
+    <div id="panel-dashboard" class="section-panel active" role="tabpanel">
+      <div class="senior-card">
+        <h3><span>📋</span> Things I'm Tracking For You</h3>
+        <p style="font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 20px;">
+          One unified view connecting your bank, transport, doctor visits, and safety reminders.
+        </p>
+        <div id="dashboard-tracking-list"></div>
+      </div>
+    </div>
+
+    <!-- PANEL 2: Flagship Demo - Bank Visit (Prepare -> Assist -> Follow Up) -->
+    <div id="panel-bank" class="section-panel" role="tabpanel">
+      <div id="bank-journey-container"></div>
+    </div>
+
+    <!-- PANEL 3: Transportation & Errands -->
+    <div id="panel-transport" class="section-panel" role="tabpanel">
+      <div id="transport-journey-container"></div>
+    </div>
+
+    <!-- PANEL 4: Health & Hospital Companion -->
+    <div id="panel-health" class="section-panel" role="tabpanel">
+      <div id="health-journey-container"></div>
+    </div>
+
+    <!-- PANEL 5: Safety & Scam Checker -->
+    <div id="panel-scam" class="section-panel" role="tabpanel">
+      <div class="senior-card">
+        <h3><span>🛡️</span> Scam &amp; Fraud Sentinel</h3>
+        <p style="font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 20px;">
+          Forward any SMS, WhatsApp alert, or letter here. Sahay will explain why it's suspicious in plain words without technical jargon.
+        </p>
+
+        <!-- Preloaded Scam Test Scenarios -->
+        <div style="background: var(--bg-card-hover); padding: 20px; border-radius: var(--radius-card); border: 2px solid var(--border-card); margin-bottom: 20px;">
+          <h4 style="font-size: 1.25rem; margin-bottom: 10px;">Test Common Scam Patterns Seniors Face:</h4>
+          <div class="demo-voice-chips">
+            <button class="demo-chip" style="color: #B91C1C; border-color: #FCA5A5;" onclick="testScamSample('electricity')">
+              🚨 Fake Electricity Disconnection Threat
+            </button>
+            <button class="demo-chip" style="color: #B91C1C; border-color: #FCA5A5;" onclick="testScamSample('pension')">
+              🚨 Fake Pension Life Certificate APK
+            </button>
+            <button class="demo-chip" style="color: #15803D; border-color: #86EFAC;" onclick="testScamSample('safe')">
+              ✅ Genuine Bank Credit SMS (Safe)
+            </button>
+          </div>
+        </div>
+
+        <!-- Manual Input or Paste Area -->
+        <div style="margin-bottom: 24px;">
+          <label for="scam-input-text" style="font-size: 1.15rem; font-weight: 700; display: block; margin-bottom: 8px;">
+            Inspect Message Text or Notice:
+          </label>
+          <textarea id="scam-input-text" rows="4" style="width: 100%; font-size: 1.15rem; padding: 16px; border: 2px solid var(--border-card); border-radius: var(--radius-btn); font-family: inherit; resize: vertical;" placeholder="Paste suspicious SMS or WhatsApp message here..."></textarea>
+          
+          <button class="btn-primary" style="margin-top: 14px;" onclick="triggerManualScamCheck()">
+            <span>🔍</span> Inspect for Fraud Patterns
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL 6: Opt-In Family Portal -->
+    <div id="panel-family" class="section-panel" role="tabpanel">
+      <div id="family-portal-container"></div>
+    </div>
+
+  </main>
+
+  <!-- Sticky Bottom Voice Action Bar (Voice-First Engine) -->
+  <footer class="voice-action-bar" role="region" aria-label="Voice Assistant Bar">
+    <button id="giant-mic-btn" class="giant-mic-btn" aria-label="Tap to speak to Sahay">
+      <span aria-hidden="true">🎙️</span>
+    </button>
+    <div>
+      <div id="voice-prompt-text" class="voice-prompt-text" data-i18n="voice_tap_prompt">Tap or Speak to Sahay</div>
+      <div class="voice-sub-text" data-i18n="voice_hint">Try: "Take me to the bank" or "Check my pension"</div>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="/js/i18n.js"></script>
+  <script src="/js/sample-data.js"></script>
+  <script src="/js/voice-engine.js"></script>
+  <script src="/js/scam-guard.js"></script>
+  <script src="/js/journey-bank.js"></script>
+  <script src="/js/journey-transport.js"></script>
+  <script src="/js/journey-health.js"></script>
+  <script src="/js/family-portal.js"></script>
+  <script src="/js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
